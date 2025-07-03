@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - Gestion des Équipements Universitaires{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .home-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 32px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        }
+        .home-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            text-align: center;
+            color: #1a237e;
+        }
+        .home-desc {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 22px;
+            color: #333;
+        }
+        .home-list {
+            color: #444;
+            margin-bottom: 30px;
+        }
+        .home-list li {
+            margin-bottom: 8px;
+        }
+        .home-btn {
+            display: inline-block;
+            background: #1976d2;
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .home-btn:hover {
+            background: #0d47a1;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="home-container">
+    <h1 class="home-title">Bienvenue sur l'application de gestion des équipements</h1>
+    <p class="home-desc">
+        Cette plateforme vous permet de gérer efficacement l'inventaire, l'attribution et le suivi des équipements de l'université.
+    </p>
+    <ul class="home-list">
+        <li>Consultez la liste des équipements disponibles</li>
+        <li>Ajoutez, modifiez ou supprimez des équipements</li>
+        <li>Attribuez des équipements aux utilisateurs</li>
+        <li>Suivez l'état et l'historique des équipements</li>
+    </ul>
+    <div style="text-align:center;">
+        <a href="/" class="home-btn">Commencer</a>
+    </div>
+</div>
+{% endblock %}
