@@ -1,11 +1,15 @@
-/* Style général pour fond bleu/vert/blanc et formulaire centré */
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<style>
 body {
     min-height: 100vh;
     margin: 0;
     background: linear-gradient(135deg, #2196f3 0%, #43e97b 100%, #fff 100%);
     font-family: 'Segoe UI', Arial, sans-serif;
 }
-
 .form-container {
     background: #fff;
     border-radius: 16px;
@@ -14,7 +18,6 @@ body {
     margin: 60px auto;
     padding: 32px 28px 28px 28px;
 }
-
 .form-title {
     color: #2196f3;
     text-align: center;
@@ -22,11 +25,9 @@ body {
     font-weight: bold;
     margin-bottom: 24px;
 }
-
 .input-group {
     margin-bottom: 18px;
 }
-
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -44,7 +45,6 @@ input[type="password"]:focus {
     border: 1.5px solid #2196f3;
     outline: none;
 }
-
 .button-submit {
     width: 100%;
     padding: 10px 0;
@@ -61,7 +61,6 @@ input[type="password"]:focus {
 .button-submit:hover {
     background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
 }
-
 .error-message {
     color: #e53935;
     background: #fff3f3;
@@ -72,3 +71,24 @@ input[type="password"]:focus {
     margin-bottom: 16px;
     font-size: 0.98rem;
 }
+</style>
+<div class="form-container">
+    <h2 class="form-title">Connexion</h2>
+    {% if error %}
+        <div class="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+    <form action="{{ path('login') }}" method="post">
+        <div class="input-group">
+            <label for="inputEmail">Email</label>
+            <input id="inputEmail" name="_username" type="email" autocomplete="email" required autofocus
+                   placeholder="Adresse email" value="{{ last_username }}">
+        </div>
+        <div class="input-group">
+            <label for="inputPassword">Mot de passe</label>
+            <input id="inputPassword" name="_password" type="password" autocomplete="current-password" required
+                   placeholder="Mot de passe">
+        </div>
+        <button type="submit" class="button-submit">Se connecter</button>
+    </form>
+</div>
+{% endblock %}

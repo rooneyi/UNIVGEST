@@ -4,20 +4,26 @@
 
 {% block stylesheets %}
     <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #2196f3 0%, #43e97b 100%, #fff 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
         .home-container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 32px;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08), 0 1.5px 6px rgba(67, 233, 123, 0.08);
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 32px 28px 28px 28px;
         }
         .home-title {
             font-size: 2.2rem;
             font-weight: bold;
             margin-bottom: 18px;
             text-align: center;
-            color: #1a237e;
+            color: #2196f3;
         }
         .home-desc {
             font-size: 1.1rem;
@@ -34,7 +40,7 @@
         }
         .home-btn {
             display: inline-block;
-            background: #1976d2;
+            background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
             color: #fff;
             padding: 12px 32px;
             border-radius: 6px;
@@ -43,25 +49,22 @@
             transition: background 0.2s;
         }
         .home-btn:hover {
-            background: #0d47a1;
+            background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
         }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="home-container">
-    <h1 class="home-title">Bienvenue sur l'application de gestion des équipements</h1>
-    <p class="home-desc">
-        Cette plateforme vous permet de gérer efficacement l'inventaire, l'attribution et le suivi des équipements de l'université.
-    </p>
-    <ul class="home-list">
-        <li>Consultez la liste des équipements disponibles</li>
-        <li>Ajoutez, modifiez ou supprimez des équipements</li>
-        <li>Attribuez des équipements aux utilisateurs</li>
-        <li>Suivez l'état et l'historique des équipements</li>
-    </ul>
-    <div style="text-align:center;">
-        <a href="/" class="home-btn">Commencer</a>
+    <div class="home-title">Bienvenue sur l'application de gestion et réservation des équipements</div>
+    <div class="home-desc">
+        à l'université Don Bosco de Lubumbashi (UDBL)
     </div>
+    <ul class="home-list">
+        <li>Réservez facilement vos équipements universitaires</li>
+        <li>Suivi en temps réel de l'état des équipements</li>
+        <li>Gestion centralisée par l'administrateur</li>
+    </ul>
+    <a href="{{ path('login') }}" class="home-btn">Se connecter</a>
 </div>
 {% endblock %}
