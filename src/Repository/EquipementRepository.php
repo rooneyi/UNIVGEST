@@ -12,4 +12,19 @@ class EquipementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Equipement::class);
     }
+
+    /**
+     * Retourne la réservation active (en cours) pour un équipement donné
+     */
+    public function findActiveReservation(\App\Entity\Equipement $equipement): ?\App\Entity\Reservation
+    {
+        return $this->getEntityManager()->getRepository(\App\Entity\Reservation::class)
+            ->createQueryBuilder('r')
+            ->where('r.equipement = :equipement')
+            ->andWhere('r.active = true')
+            ->setParameter('equipement', $equipement)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

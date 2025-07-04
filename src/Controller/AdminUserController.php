@@ -2,47 +2,28 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\ReservationRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/admin/users')]
+#[Route('/admin')]
 class AdminUserController extends AbstractController
 {
-    #[Route('/', name: 'admin_user_index')]
-    public function index(EntityManagerInterface $em, Request $request): Response
+    #[Route('/dashboard', name: 'admin_dashboard')]
+    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('ROLE_GESTIONNAIRE')]
+    public function dashboard(Request $request, UserRepository $userRepository, ReservationRepository $reservationRepository): Response
     {
-        $users = $em->getRepository(User::class)->findAll();
-        // Ajout d'un tableau de menus pour l'admin
-        $adminMenus = [
-            [
-                'label' => 'Utilisateurs',
-                'route' => 'admin_user_index',
-            ],
-            [
-                'label' => 'Équipements',
-                'route' => 'admin_equipement_index',
-            ],
-            [
-                'label' => 'Réservations',
-                'route' => 'admin_reservation_index',
-            ],
-        ];
-
-        // Filtrage des réservations (si demandé)
-        $filter = $request->query->get('reservation_status');
-        $reservationRepo = $em->getRepository(\App\Entity\Reservation::class);
-        $reservations = null;
-        if ($filter === 'active') {
-            $reservations = $reservationRepo->findBy(['active' => true], ['dateReservation' => 'DESC']);
-        } elseif ($filter === 'inactive') {
-            $reservations = $reservationRepo->findBy(['active' => false], ['dateReservation' => 'DESC']);
-        } elseif ($filter === 'all') {
-            $reservations = $reservationRepo->findBy([], ['dateReservation' => 'DESC']);
-        }
+        $users = $userRepository->findAll();
+        $adminMenus = []; // À adapter selon ton menu
+        $reservations = $reservationRepository->findAll();
+        $filter = null; // À adapter si besoin
 
         // Notifications (exemple flash)
         if ($request->query->get('notif') === 'new') {

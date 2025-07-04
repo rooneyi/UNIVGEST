@@ -10,122 +10,231 @@ body {
     background: #fff;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
-.reservation-container {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.06), 0 1.5px 6px rgba(67, 233, 123, 0.06);
-    max-width: 800px;
-    margin: 60px auto;
-    padding: 32px 28px 28px 28px;
-}
-.reservation-title {
-    color: #2196f3;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 24px;
-    letter-spacing: 1px;
-}
-.equipements-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 24px;
-    background: #fff;
-}
-.equipements-table th, .equipements-table td {
-    border: 1px solid #e0e0e0;
-    padding: 10px 8px;
-    text-align: center;
-}
-.equipements-table th {
-    background: #f5faff;
-    color: #2196f3;
-    font-weight: 600;
-}
-.equipements-table tr:nth-child(even) {
-    background: #f8faff;
-}
-.reserve-btn {
-    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 7px 18px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s;
-    box-shadow: 0 1px 4px rgba(33,150,243,0.07);
-}
-.reserve-btn:disabled {
-    background: #bdbdbd;
-    cursor: not-allowed;
-}
-.reserve-btn:hover:not(:disabled) {
-    background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
-}
-.success-message {
-    color: #4caf50;
-    background: #e8f5e9;
-    border-left: 4px solid #4caf50;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-.error-message {
-    color: #f44336;
-    background: #ffebee;
-    border-left: 4px solid #f44336;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="reservation-container">
-    <div class="reservation-title">Réservation des équipements</div>
-    {% for label, messages in app.flashes %}
+<div class="min-h-full">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="shrink-0">
+            <img class="size-8" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="#" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Dashboard</a>
+              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
+              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Reports</a>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-4 flex items-center md:ml-6">
+            <button type="button" class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+              <span class="absolute -inset-1.5"></span>
+              <span class="sr-only">View notifications</span>
+              <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+              </svg>
+            </button>
+            <div class="relative ml-3">
+              <div>
+                <button type="button" class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                  <span class="absolute -inset-1.5"></span>
+                  <span class="sr-only">Open user menu</span>
+                  <img class="size-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                </button>
+              </div>
+              <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="-mr-2 flex md:hidden">
+          <button type="button" class="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden" aria-controls="mobile-menu" aria-expanded="false">
+            <span class="absolute -inset-0.5"></span>
+            <span class="sr-only">Open main menu</span>
+            <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+            <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="md:hidden" id="mobile-menu">
+      <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+        <a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Dashboard</a>
+        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
+        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Reports</a>
+      </div>
+      <div class="border-t border-gray-700 pt-4 pb-3">
+        <div class="flex items-center px-5">
+          <div class="shrink-0">
+            <img class="size-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+          </div>
+          <div class="ml-3">
+            <div class="text-base/5 font-medium text-white">Tom Cook</div>
+            <div class="text-sm font-medium text-gray-400">tom@example.com</div>
+          </div>
+          <button type="button" class="relative ml-auto shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+            <span class="absolute -inset-1.5"></span>
+            <span class="sr-only">View notifications</span>
+            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-3 space-y-1 px-2">
+          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Your Profile</a>
+          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Settings</a>
+          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Sign out</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="bg-white shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+    </div>
+  </header>
+  <main>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="{{ label == 'success' ? 'success-message' : 'error-message' }}">{{ message }}</div>
         {% endfor %}
-    {% endfor %}
-    <table class="equipements-table">
-        <thead>
+      {% endfor %}
+      <div class="overflow-x-auto rounded-lg shadow mt-6">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
             <tr>
-                <th>Nom</th>
-                <th>Description</th>
-                <th>État</th>
-                <th>Disponible</th>
-                <th>Capteurs</th>
-                <th>Action</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom du produit</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Couleur</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disponibilité</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservé par</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for equipement in equipements %}
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for equipement in equipements %}
             <tr>
-                <td>{{ equipement.nom }}</td>
-                <td>{{ equipement.description|default('-') }}</td>
-                <td>{{ equipement.etat }}</td>
-                <td>{{ equipement.disponible ? 'Oui' : 'Non' }}</td>
-                <td>{{ equipement.capteurs|default('-') }}</td>
-                <td>
-                    {% if equipement.disponible %}
-                        <form action="{{ path('reservation_index') }}" method="post" style="margin:0;">
-                            <input type="hidden" name="equipement_id" value="{{ equipement.id }}">
-                            <button type="submit" class="reserve-btn">Réserver</button>
-                        </form>
-                    {% else %}
-                        <button class="reserve-btn" disabled>Indisponible</button>
-                    {% endif %}
-                </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ equipement.nom }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ equipement.couleur|default('-') }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ equipement.categorie|default('-') }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if equipement.disponible %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Disponible</span>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Indisponible</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {% set reservation = reservationsActives[equipement.id] ?? null %}
+                {% if reservation %}
+                  {{ reservation.prenomPersonne ~ ' ' ~ reservation.nomPersonne }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if equipement.disponible %}
+                  <button class="inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150" type="button" onclick="openModal({{ equipement.id }})">
+                    <svg class="-ml-0.5 h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    Réserver
+                  </button>
+                  <!-- Modal -->
+                  <div id="modal-{{ equipement.id }}" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+                      <button type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl" onclick="closeModal({{ equipement.id }})">&times;</button>
+                      <h2 class="text-xl font-bold mb-4 text-center">Réserver : {{ equipement.nom }}</h2>
+                      <form action="{{ path('reservation_index') }}" method="post" class="space-y-4">
+                        <input type="hidden" name="equipement_id" value="{{ equipement.id }}">
+                        <input type="hidden" name="date_reservation" value="{{ "now"|date('Y-m-d H:i:s') }}">
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                          <input type="text" name="nom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Post-nom</label>
+                          <input type="text" name="postnom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                          <input type="text" name="prenom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Promotion</label>
+                          <select name="promotion" class="block w-full border border-gray-300 rounded px-3 py-2" required>
+                            <option value="">Sélectionner</option>
+                            <option value="L1">L1</option>
+                            <option value="L2">L2</option>
+                            <option value="L3">L3</option>
+                            <option value="L4">L4</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Filière</label>
+                          <select name="filiere" class="block w-full border border-gray-300 rounded px-3 py-2" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Genie Logiciel">Génie Logiciel</option>
+                            <option value="Design et Multimedia">Design et Multimédia</option>
+                            <option value="Management des systemes d'information">Management des systèmes d'information</option>
+                            <option value="Reseaux et Telecomunication">Réseaux et Télécommunication</option>
+                            <option value="Reseaux et Administration">Réseaux et Administration</option>
+                            <option value="Science de base L1">Science de base L1</option>
+                            <option value="Science de base L2">Science de base L2</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
+                          <input type="email" name="email" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
+                          <input type="tel" name="telephone" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+                        </div>
+                        <button type="submit" class="inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150">
+                          <svg class="-ml-0.5 h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                          Valider la réservation
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">Déjà réservé</span>
+                {% endif %}
+              </td>
             </tr>
-        {% else %}
-            <tr><td colspan="6">Aucun équipement disponible.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            {% else %}
+            <tr>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Aucun équipement disponible.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 </div>
+<script>
+function openModal(id) {
+    document.getElementById('modal-' + id).classList.remove('hidden');
+}
+function closeModal(id) {
+    document.getElementById('modal-' + id).classList.add('hidden');
+}
+</script>
 {% endblock %}

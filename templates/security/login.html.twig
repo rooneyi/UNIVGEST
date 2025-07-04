@@ -2,124 +2,60 @@
 
 {% block title %}Connexion{% endblock %}
 
-{% block stylesheets %}
-<style>
-body {
-    min-height: 100vh;
-    margin: 0;
-    background: linear-gradient(135deg, #e3f2fd 0%, #b2f7cc 100%, #fff 100%);
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-.centered-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 64px);
-    margin-top: 32px;
-    margin-bottom: 32px;
-}
-.form-container {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.06), 0 1.5px 6px rgba(67, 233, 123, 0.06);
-    max-width: 400px;
-    width: 100%;
-    padding: 32px 28px 28px 28px;
-}
-.form-title {
-    color: #2196f3;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 24px;
-    letter-spacing: 1px;
-}
-.input-group {
-    margin-bottom: 18px;
-}
-input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #b2f7cc;
-    border-radius: 7px;
-    font-size: 1rem;
-    color: #2196f3;
-    background: #f8faff;
-    margin-top: 6px;
-    transition: border 0.2s;
-}
-input[type="email"]:focus,
-input[type="password"]:focus {
-    border: 1.5px solid #2196f3;
-    outline: none;
-}
-.button-submit {
-    width: 100%;
-    padding: 10px 0;
-    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 10px;
-    box-shadow: 0 2px 8px rgba(33,150,243,0.07);
-}
-.button-submit:hover {
-    background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
-}
-.error-message {
-    color: #e53935;
-    background: #fff3f3;
-    border: 1px solid #e53935;
-    border-radius: 5px;
-    padding: 8px 0;
-    text-align: center;
-    margin-bottom: 16px;
-    font-size: 0.98rem;
-}
-</style>
-{% endblock %}
 
 {% block body %}
-<div class="centered-container">
-    <div class="form-container">
-
-        <h2 class="form-title">Connexion</h2>
+    <div class="flex flex-col items-center justify-center min-h-screen">
         {% if error %}
             <div class="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
-        <form action="{{ path('login') }}" method="post">
-            <div class="input-group">
-                <label for="inputEmail">Email</label>
-                <input id="inputEmail" name="_username" type="email" autocomplete="email" required autofocus
-                       placeholder="Adresse email" value="{{ last_username }}">
+        <form action="{{ path('login') }}" method="post" class="mx-auto mt-16 max-w-3xl sm:mt-20 px-4 sm:px-6 lg:px-8 w-full">
+            <div class="border-b border-gray-900/10 pb-12 space-y-12 w-full ">
+                <div class="pb-12">
+                    <h2 class="text-base/7 font-semibold text-gray-900 text-center">Connexion</h2>
+                    <p class="mt-1 text-sm/6 text-gray-600 text-center">Connectez-vous afin d'avoir accès aux meilleurs équipements.</p>
+                    <div class="mt-10 flex flex-col items-center justify-center">
+                        <div class="w-full max-w-md">
+                            <label for="inputEmail" class="block text-sm/6 font-medium text-gray-900">Username</label>
+                            <div class="mt-2">
+                                <input id="inputEmail" name="_username" type="email" autocomplete="email" required autofocus
+                                       placeholder="Adresse email" value="{{ last_username }}"
+                                       class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 flex flex-col items-center justify-center">
+                        <div class="w-full max-w-md">
+                            <label for="inputPassword" class="block text-sm/6 font-medium text-gray-900">Mot de passe</label>
+                            <div class="mt-2">
+                                <input id="inputPassword" name="_password" type="password" autocomplete="current-password" required
+                                       placeholder="Mot de passe"
+                                       class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-10 flex flex-col items-center justify-center">
+                    <div class="w-full max-w-md">
+                        <button type="submit" class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Se Connecter</button>
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="inputPassword">Mot de passe</label>
-                <input id="inputPassword" name="_password" type="password" autocomplete="current-password" required
-                       placeholder="Mot de passe">
-            </div>
-            <button type="submit" class="button-submit">Se connecter</button>
         </form>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top:18px; font-size:1.05rem;">
-            <div>
+        <div class="flex flex-col items-center justify-center w-full mt-6 text-[1.05rem]">
+            <div class="flex flex-wrap items-center justify-center gap-2 w-full">
                 {% if not app.user %}
                     <span>Pas de compte ?</span>
-                    <a href="{{ path('user_register') }}" style="color:#43e97b; font-weight:600; text-decoration:none; margin-left:6px;">Créer un compte</a>
+                    <a href="{{ path('user_register') }}" class="text-black font-semibold ml-2 transition-colors hover:text-green-600">Créer un compte</a>
                 {% elseif 'ROLE_ADMIN' in app.user.roles %}
-                    <a href="{{ path('admin_user_index') }}" style="color:#2196f3; font-weight:600; text-decoration:none; margin-left:6px;">Administration</a>
+                    <a href="{{ path('admin_user_index') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Administration</a>
                 {% else %}
-                    <a href="{{ path('reservation_index') }}" style="color:#2196f3; font-weight:600; text-decoration:none; margin-left:6px;">Mes réservations</a>
+                    <a href="{{ path('reservation_index') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Mes réservations</a>
                 {% endif %}
+                <span class="hidden sm:inline-block mx-2 text-gray-400">|</span>
+                <a href="{{ path('app_home') }}" title="Retour" class="flex items-center text-black font-semibold transition-colors hover:text-green-600">
+                    <span class="text-xl mr-2">&#8592;</span> Retour
+                </a>
             </div>
-            <a href="{{ path('app_home') }}" title="Retour" style="color:#2196f3; font-weight:600; text-decoration:none; display:flex; align-items:center;">
-                <span style="font-size:1.3rem; margin-right:6px;">&#8592;</span> Retour
-            </a>
         </div>
     </div>
-</div>
 {% endblock %}
