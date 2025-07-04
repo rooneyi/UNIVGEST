@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration des Équipements | Université Don Bosco Lubumbashi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; }
+        .container { max-width: 1200px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
+        .header-main { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; }
+        .header-title { font-size: 2rem; font-weight: bold; color: #1e40af; }
+        .header-desc { font-size: 1.1rem; color: #64748b; }
+        .header-action a { background: #16a34a; color: #fff; padding: 0.75rem 2rem; border-radius: 0.5rem; font-weight: 500; text-decoration: none; font-size: 1.05rem; box-shadow: 0 2px 8px rgba(16,185,129,0.08); transition: background 0.2s; display: inline-flex; align-items: center; }
+        .header-action a:hover { background: #15803d; }
+        .stats-section { background: #fff; padding: 2.5rem 0 1.5rem 0; margin-bottom: 2rem; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .stats-item { background: #fff; padding: 2rem 1rem; border-radius: 1rem; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: center; transition: all 0.3s ease; }
+        .stats-item h3 { font-size: 2rem; font-weight: bold; color: #1e293b; margin: 0.5rem 0; }
+        .stats-item p { color: #64748b; }
+        .filters-section { background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 2rem; padding: 2rem; }
+        .filters-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 18px; }
+        .filters-form { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+        .filters-form input[type="text"] { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 1rem; width: 260px; }
+        .filters-form button { padding: 8px 18px; border-radius: 6px; border: 1px solid #2563eb; background: #fff; color: #2563eb; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s; margin-right: 6px; }
+        .filters-form button.selected, .filters-form button:hover { background: #2563eb; color: #fff; }
+        .equip-list-section { background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); padding: 2rem; }
+        .equip-list-header { font-size: 1.25rem; font-weight: 600; margin-bottom: 6px; }
+        .equip-list-sub { color: #6b7280; font-size: 1rem; margin-bottom: 18px; }
+        .equip-list-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #e5e7eb; background: none; border-radius: 0; margin-bottom: 0; box-shadow: none; transition: background 0.2s; }
+        .equip-list-item:last-child { border-bottom: none; }
+        .equip-list-item:hover { background: #f0f9ff; }
+        .equip-info { flex: 1; }
+        .equip-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .equip-title { font-weight: 600; color: #1e293b; font-size: 1.1rem; }
+        .equip-badge { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-left: 10px; }
+        .equip-badge.disponible { background: #22c55e; color: #fff; }
+        .equip-badge.reservé { background: #2563eb; color: #fff; }
+        .equip-badge.maintenance { background: #f59e42; color: #fff; }
+        .equip-badge.indisponible { background: #ef4444; color: #fff; }
+        .equip-details { color: #6b7280; font-size: 0.97rem; margin-bottom: 2px; }
+        .equip-action-btn { padding: 7px 18px; border-radius: 6px; border: 1px solid #2563eb; background: #2563eb; color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s, color 0.2s; text-decoration: none; margin-left: 8px; font-weight: 500; }
+        .equip-action-btn:hover { background: #174ea6; color: #fff; }
+        .empty-list { color: #6b7280; text-align: center; padding: 32px 0 0 0; font-size: 1.1rem; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% include 'header.html.twig' %}
+
+    <div class="header-main">
+  <div class="container header-content">
+    <div>
+      <div class="header-title">Administration des Équipements</div>
+      <div class="header-desc">Gérez l'inventaire, les réservations et le suivi de l'état de vos équipements.</div>
+    </div>
+    <div class="header-action">
+      <a href="{{ path('admin_equipement_new') }}">
+        <i class="fa fa-plus-circle" style="margin-right:8px;"></i> Ajouter un Équipement
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container stats-section">
+  <div class="stats-grid">
+    <div class="stats-item">
+      <p>Total Équipements</p>
+      <h3>{{ totalEquipements is defined ? totalEquipements : equipements|length }}</h3>
+    </div>
+    <div class="stats-item">
+      <p>Disponibles</p>
+      <h3 style="color:#22c55e;">{{ totalDisponibles is defined ? totalDisponibles : equipements|filter(e => e.etat == 'disponible')|length }}</h3>
+    </div>
+    <div class="stats-item">
+      <p>Réservés</p>
+      <h3 style="color:#2563eb;">{{ totalReserves is defined ? totalReserves : equipements|filter(e => e.etat == 'reservé')|length }}</h3>
+    </div>
+    <div class="stats-item">
+      <p>En Maintenance</p>
+      <h3 style="color:#f59e42;">{{ totalMaintenance is defined ? totalMaintenance : equipements|filter(e => e.etat == 'maintenance')|length }}</h3>
+    </div>
+  </div>
+</div>
+
+<div class="container filters-section">
+  <div class="filters-title">Rechercher et Filtrer</div>
+  <form method="get" class="filters-form">
+    <input type="text" name="q" placeholder="Rechercher par nom ou ID..." value="{{ app.request.get('q') }}">
+    <button type="submit" name="cat" value="" class="{% if app.request.get('cat') is empty %}selected{% endif %}">Tous</button>
+    {% set cats = categories is defined ? categories : [] %}
+    {% if cats is empty %}
+      {% set _cats = [] %}
+      {% for e in equipements %}
+        {% if e.capteurs is defined and e.capteurs not in _cats %}
+          {% set _cats = _cats|merge([e.capteurs]) %}
+        {% endif %}
+      {% endfor %}
+      {% set cats = _cats|sort %}
+    {% endif %}
+    {% for cat in cats %}
+      <button type="submit" name="cat" value="{{ cat }}" class="{% if app.request.get('cat') == cat %}selected{% endif %}">{{ cat }}</button>
+    {% endfor %}
+  </form>
+</div>
+
+<div class="container equip-list-section">
+  <div class="equip-list-header">Liste des Équipements</div>
+  <div class="equip-list-sub">{{ equipements|length }} équipement(s) trouvé(s)</div>
+  {% if equipements|length > 0 %}
+    {% for equipment in equipements %}
+      <div class="equip-list-item">
+        <div class="equip-info">
+          <div class="equip-title-row">
+            <div class="equip-title">{{ equipment.nom }}</div>
+          </div>
+          <div class="equip-details">
+            <strong>ID:</strong> {{ equipment.id }} | <strong>Catégorie:</strong> {{ equipment.capteurs }}
+            <span class="equip-badge {{ equipment.etat }}">{{ equipment.capteurs }}</span>
+          </div>
+          <div class="equip-details">
+            <strong>Description:</strong> {{ equipment.description }}
+          </div>
+        </div>
+        <div>
+          <a href="{{ path('admin_equipement_edit', {id: equipment.id}) }}" class="equip-action-btn">Modifier</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-list">Aucun équipement trouvé.</div>
+  {% endif %}
+</div>
+{% endblock %}

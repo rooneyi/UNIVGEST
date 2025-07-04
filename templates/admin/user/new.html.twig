@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un utilisateur{% endblock %}
+
+{% block stylesheets %}
+<style>
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #2196f3 0%, #43e97b 100%, #fff 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.form-container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08), 0 1.5px 6px rgba(67, 233, 123, 0.08);
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 32px 28px 28px 28px;
+}
+.form-title {
+    color: #2196f3;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+.input-group {
+    margin-bottom: 18px;
+}
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #43e97b;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #2196f3;
+    background: #f8faff;
+    margin-top: 6px;
+    transition: border 0.2s;
+}
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border: 1.5px solid #2196f3;
+    outline: none;
+}
+.button-submit {
+    width: 100%;
+    padding: 10px 0;
+    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+.button-submit:hover {
+    background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-container">
+    <h2 class="form-title">Ajouter un utilisateur</h2>
+    <form action="{{ path('admin_user_new') }}" method="post">
+        <div class="input-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <input id="password" name="password" type="password" required>
+        </div>
+        <div class="input-group">
+            <label for="role">Rôle</label>
+            <select id="role" name="role" required>
+                <option value="ROLE_USER">Utilisateur</option>
+                <option value="ROLE_ADMIN">Administrateur</option>
+            </select>
+        </div>
+        <button type="submit" class="button-submit">Créer</button>
+    </form>
+</div>
+{% endblock %}
+

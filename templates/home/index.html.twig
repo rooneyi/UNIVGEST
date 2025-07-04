@@ -1,70 +1,123 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil - Gestion des Équipements Universitaires{% endblock %}
+{% block title %}Gestion des Équipements | Université Don Bosco Lubumbashi{% endblock %}
 
 {% block stylesheets %}
-    <style>
-        body {
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #2196f3 0%, #43e97b 100%, #fff 100%);
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        .home-container {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08), 0 1.5px 6px rgba(67, 233, 123, 0.08);
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 32px 28px 28px 28px;
-        }
-        .home-title {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin-bottom: 18px;
-            text-align: center;
-            color: #2196f3;
-        }
-        .home-desc {
-            font-size: 1.1rem;
-            text-align: center;
-            margin-bottom: 22px;
-            color: #333;
-        }
-        .home-list {
-            color: #444;
-            margin-bottom: 30px;
-        }
-        .home-list li {
-            margin-bottom: 8px;
-        }
-        .home-btn {
-            display: inline-block;
-            background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
-            color: #fff;
-            padding: 12px 32px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .home-btn:hover {
-            background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
-        }
-    </style>
+
 {% endblock %}
 
 {% block body %}
-<div class="home-container">
-    <div class="home-title">Bienvenue sur l'application de gestion et réservation des équipements</div>
-    <div class="home-desc">
-        à l'université Don Bosco de Lubumbashi (UDBL)
+    <!-- Header -->
+    {% include 'partials/header.html.twig' %}
+
+    <div class="bg-white">
+
+        <div class="relative isolate px-6 pt-14 lg:px-8">
+            <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+                <div class="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-288.75" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+            </div>
+            <div class="mx-auto max-w-5xl py-32 sm:py-48 lg:py-56">
+                <div class="hidden sm:mb-8 sm:flex sm:justify-center">
+                    <div class="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+                        Plateforme de gestion des équipements de l'UDBL
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">Gérez vos équipements et réservations en toute simplicité</h1>
+                    <p class="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">Cette application permet à l'Université Don Bosco de Lubumbashi de gérer efficacement ses équipements, d'organiser les réservations et de favoriser la collaboration entre étudiants, enseignants et personnel administratif.</p>
+                    <div class="mt-10 flex items-center justify-center gap-x-6">
+                        <span class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs">Optimisez l'utilisation des ressources de l'UDBL</span>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+                <div class="relative left-[calc(50%+3rem)] aspect-1155/678 w-144.5 -translate-x-1/2 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-288.75" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+            </div>
+        </div>
     </div>
-    <ul class="home-list">
-        <li>Réservez facilement vos équipements universitaires</li>
-        <li>Suivi en temps réel de l'état des équipements</li>
-        <li>Gestion centralisée par l'administrateur</li>
-    </ul>
-    <a href="{{ path('login') }}" class="home-btn">Se connecter</a>
-</div>
+
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl lg:text-center">
+                <h2 class="text-base/7 font-semibold text-green-600">Université Don Bosco de Lubumbashi</h2>
+                <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">Solidarité – Innovation – Travail</p>
+                <p class="mt-6 text-lg/8 text-gray-700">L'Université Don Bosco de Lubumbashi (UDBL) est un établissement d'enseignement supérieur et universitaire privé catholique, né de la fusion de plusieurs instituts et écoles supérieurs salésiens. Elle vise l'excellence académique et humaine, en formant des leaders responsables et innovants pour la société congolaise et africaine.</p>
+            </div>
+            <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+                <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-blue-600">
+                                <!-- Icône Solidarité (vert) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8a4 4 0 1 1 8 0v1a4 4 0 1 1-8 0V8zm-2 8a6 6 0 0 1 12 0v2H5v-2z"/></svg>
+                            </div>
+                            Valeurs
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600"><b>Solidarité</b> : Unir les forces pour avancer ensemble.<br><b>Innovation</b> : Chercher sans cesse à améliorer et à innover.<br><b>Travail</b> : Grandir par l’effort et la persévérance.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-green-600">
+                                <!-- Icône Innovation (bleu) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m12.728 0l-1.414-1.414M6.05 6.05L4.636 4.636M12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8z"/></svg>
+                            </div>
+                            Vision
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">Répondre aux enjeux de la société par la formation, la recherche et la valorisation des compétences, dans un esprit d'excellence et d'ouverture.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-green-600">
+                                <!-- Icône Travail (bleu) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-6 0h6m-6 0a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2m-6 0v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2"/></svg>
+                            </div>
+                            Analyse historique
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">L'UDBL est issue de la fusion de : ESIS, ECOPO, ISPh et ITSFS. Elle s'inscrit dans la tradition salésienne d'éducation intégrale et d'engagement social.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-blue-600">
+                                <!-- Icône Suivi en temps réel (bleu) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0z"/></svg>
+                            </div>
+                            Suivi des équipements en temps réel
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">Visualisez l'état et la disponibilité des équipements à tout moment grâce à un tableau de bord interactif.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-blue-600">
+                                <!-- Icône Réservation (bleu) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-9 4h6m-7 5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7z"/></svg>
+                            </div>
+                            Réservation
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">Réservez facilement un équipement selon vos besoins et consultez l'historique de vos réservations.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-green-600">
+                                <!-- Icône Planification maintenance (vert) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-6 0h6m-6 0a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2m-6 0v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2"/></svg>
+                            </div>
+                            Planification des maintenances
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">Anticipez et organisez les opérations de maintenance pour garantir la disponibilité des équipements.</dd>
+                    </div>
+                    <div class="relative pl-16">
+                        <dt class="text-base/7 font-semibold text-gray-900">
+                            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-green-600">
+                                <!-- Icône Rapport (vert) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-6 0h6m-6 0a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2m-6 0v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2"/></svg>
+                            </div>
+                            Création de rapports
+                        </dt>
+                        <dd class="mt-2 text-base text-gray-600">Générez des rapports détaillés sur l'utilisation, l'état et la maintenance des équipements.</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    {% include 'partials/footer.html.twig' %}
 {% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un compte utilisateur{% endblock %}
+
+{% block stylesheets %}
+<style>
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #e3f2fd 0%, #b2f7cc 100%, #fff 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.form-container {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.06), 0 1.5px 6px rgba(67, 233, 123, 0.06);
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 32px 28px 28px 28px;
+}
+.form-title {
+    color: #2196f3;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+}
+.input-group {
+    margin-bottom: 18px;
+}
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #b2f7cc;
+    border-radius: 7px;
+    font-size: 1rem;
+    color: #2196f3;
+    background: #f8faff;
+    margin-top: 6px;
+    transition: border 0.2s;
+}
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border: 1.5px solid #2196f3;
+    outline: none;
+}
+.button-submit {
+    width: 100%;
+    padding: 10px 0;
+    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(33,150,243,0.07);
+}
+.button-submit:hover {
+    background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
+}
+.error-message {
+    color: #e53935;
+    background: #fff3f3;
+    border: 1px solid #e53935;
+    border-radius: 5px;
+    padding: 8px 0;
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 0.98rem;
+}
+.success-message {
+    color: #388e3c;
+    background: #e8f5e9;
+    border: 1px solid #43e97b;
+    border-radius: 5px;
+    padding: 8px 0;
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 0.98rem;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-container">
+
+    <h2 class="form-title">Créer un compte utilisateur</h2>
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div class="success-message">{{ success }}</div>
+    {% endif %}
+    <form action="{{ path('user_register') }}" method="post">
+        <div class="input-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required placeholder="prenom.nom@esisalama.org">
+        </div>
+        <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <input id="password" name="password" type="password" required placeholder="Mot de passe">
+        </div>
+        <button type="submit" class="button-submit">Créer mon compte</button>
+    </form>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top:18px;">
+        <div>
+            <span>Déjà un compte ?</span>
+            <a href="{{ path('login') }}" style="color:#2196f3; font-weight:600; text-decoration:none; margin-left:6px;">Se connecter</a>
+        </div>
+        <a href="{{ path('app_home') }}" title="Retour" style="color:#2196f3; font-size:1.3rem; text-decoration:none; display:flex; align-items:center;">
+            <span style="margin-right:6px;">&#8592;</span> Retour
+        </a>
+    </div>
+</div>
+{% endblock %}
