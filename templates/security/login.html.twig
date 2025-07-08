@@ -47,7 +47,7 @@
                     <span>Pas de compte ?</span>
                     <a href="{{ path('user_register') }}" class="text-black font-semibold ml-2 transition-colors hover:text-green-600">Créer un compte</a>
                 {% elseif 'ROLE_ADMIN' in app.user.roles %}
-                    <a href="{{ path('admin_user_index') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Administration</a>
+                    <a href="{{ path('admin_dashboard') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Administration</a>
                 {% else %}
                     <a href="{{ path('reservation_index') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Mes réservations</a>
                 {% endif %}

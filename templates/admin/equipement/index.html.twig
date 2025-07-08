@@ -5,132 +5,138 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; }
-        .container { max-width: 1200px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
-        .header-main { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; }
-        .header-title { font-size: 2rem; font-weight: bold; color: #1e40af; }
-        .header-desc { font-size: 1.1rem; color: #64748b; }
-        .header-action a { background: #16a34a; color: #fff; padding: 0.75rem 2rem; border-radius: 0.5rem; font-weight: 500; text-decoration: none; font-size: 1.05rem; box-shadow: 0 2px 8px rgba(16,185,129,0.08); transition: background 0.2s; display: inline-flex; align-items: center; }
-        .header-action a:hover { background: #15803d; }
-        .stats-section { background: #fff; padding: 2.5rem 0 1.5rem 0; margin-bottom: 2rem; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
-        .stats-item { background: #fff; padding: 2rem 1rem; border-radius: 1rem; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: center; transition: all 0.3s ease; }
-        .stats-item h3 { font-size: 2rem; font-weight: bold; color: #1e293b; margin: 0.5rem 0; }
-        .stats-item p { color: #64748b; }
-        .filters-section { background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 2rem; padding: 2rem; }
-        .filters-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 18px; }
-        .filters-form { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
-        .filters-form input[type="text"] { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 1rem; width: 260px; }
-        .filters-form button { padding: 8px 18px; border-radius: 6px; border: 1px solid #2563eb; background: #fff; color: #2563eb; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s; margin-right: 6px; }
-        .filters-form button.selected, .filters-form button:hover { background: #2563eb; color: #fff; }
-        .equip-list-section { background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); padding: 2rem; }
-        .equip-list-header { font-size: 1.25rem; font-weight: 600; margin-bottom: 6px; }
-        .equip-list-sub { color: #6b7280; font-size: 1rem; margin-bottom: 18px; }
-        .equip-list-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #e5e7eb; background: none; border-radius: 0; margin-bottom: 0; box-shadow: none; transition: background 0.2s; }
-        .equip-list-item:last-child { border-bottom: none; }
-        .equip-list-item:hover { background: #f0f9ff; }
-        .equip-info { flex: 1; }
-        .equip-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-        .equip-title { font-weight: 600; color: #1e293b; font-size: 1.1rem; }
-        .equip-badge { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-left: 10px; }
-        .equip-badge.disponible { background: #22c55e; color: #fff; }
-        .equip-badge.reservé { background: #2563eb; color: #fff; }
-        .equip-badge.maintenance { background: #f59e42; color: #fff; }
-        .equip-badge.indisponible { background: #ef4444; color: #fff; }
-        .equip-details { color: #6b7280; font-size: 0.97rem; margin-bottom: 2px; }
-        .equip-action-btn { padding: 7px 18px; border-radius: 6px; border: 1px solid #2563eb; background: #2563eb; color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s, color 0.2s; text-decoration: none; margin-left: 8px; font-weight: 500; }
-        .equip-action-btn:hover { background: #174ea6; color: #fff; }
-        .empty-list { color: #6b7280; text-align: center; padding: 32px 0 0 0; font-size: 1.1rem; }
-    </style>
 {% endblock %}
 
 {% block body %}
-    {% include 'header.html.twig' %}
-
-    <div class="header-main">
-  <div class="container header-content">
-    <div>
-      <div class="header-title">Administration des Équipements</div>
-      <div class="header-desc">Gérez l'inventaire, les réservations et le suivi de l'état de vos équipements.</div>
-    </div>
-    <div class="header-action">
-      <a href="{{ path('admin_equipement_new') }}">
-        <i class="fa fa-plus-circle" style="margin-right:8px;"></i> Ajouter un Équipement
-      </a>
-    </div>
-  </div>
-</div>
-
-<div class="container stats-section">
-  <div class="stats-grid">
-    <div class="stats-item">
-      <p>Total Équipements</p>
-      <h3>{{ totalEquipements is defined ? totalEquipements : equipements|length }}</h3>
-    </div>
-    <div class="stats-item">
-      <p>Disponibles</p>
-      <h3 style="color:#22c55e;">{{ totalDisponibles is defined ? totalDisponibles : equipements|filter(e => e.etat == 'disponible')|length }}</h3>
-    </div>
-    <div class="stats-item">
-      <p>Réservés</p>
-      <h3 style="color:#2563eb;">{{ totalReserves is defined ? totalReserves : equipements|filter(e => e.etat == 'reservé')|length }}</h3>
-    </div>
-    <div class="stats-item">
-      <p>En Maintenance</p>
-      <h3 style="color:#f59e42;">{{ totalMaintenance is defined ? totalMaintenance : equipements|filter(e => e.etat == 'maintenance')|length }}</h3>
-    </div>
-  </div>
-</div>
-
-<div class="container filters-section">
-  <div class="filters-title">Rechercher et Filtrer</div>
-  <form method="get" class="filters-form">
-    <input type="text" name="q" placeholder="Rechercher par nom ou ID..." value="{{ app.request.get('q') }}">
-    <button type="submit" name="cat" value="" class="{% if app.request.get('cat') is empty %}selected{% endif %}">Tous</button>
-    {% set cats = categories is defined ? categories : [] %}
-    {% if cats is empty %}
-      {% set _cats = [] %}
-      {% for e in equipements %}
-        {% if e.capteurs is defined and e.capteurs not in _cats %}
-          {% set _cats = _cats|merge([e.capteurs]) %}
-        {% endif %}
-      {% endfor %}
-      {% set cats = _cats|sort %}
-    {% endif %}
-    {% for cat in cats %}
-      <button type="submit" name="cat" value="{{ cat }}" class="{% if app.request.get('cat') == cat %}selected{% endif %}">{{ cat }}</button>
-    {% endfor %}
-  </form>
-</div>
-
-<div class="container equip-list-section">
-  <div class="equip-list-header">Liste des Équipements</div>
-  <div class="equip-list-sub">{{ equipements|length }} équipement(s) trouvé(s)</div>
-  {% if equipements|length > 0 %}
-    {% for equipment in equipements %}
-      <div class="equip-list-item">
-        <div class="equip-info">
-          <div class="equip-title-row">
-            <div class="equip-title">{{ equipment.nom }}</div>
-          </div>
-          <div class="equip-details">
-            <strong>ID:</strong> {{ equipment.id }} | <strong>Catégorie:</strong> {{ equipment.capteurs }}
-            <span class="equip-badge {{ equipment.etat }}">{{ equipment.capteurs }}</span>
-          </div>
-          <div class="equip-details">
-            <strong>Description:</strong> {{ equipment.description }}
-          </div>
+<div class="min-h-full bg-gray-50">
+    {% include 'partials/header.html.twig' %}
+    <main>
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Équipements</h1>
+            <div class="mb-8 flex flex-wrap gap-4">
+                <a href="{{ path('admin_equipement_new') }}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"><i class="fa fa-plus-circle mr-2"></i>Ajouter un équipement</a>
+                <a href="{{ path('admin_equipement_maintenance') }}" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 flex items-center"><i class="fa fa-tools mr-2"></i>Voir les maintenances</a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                    <div class="text-3xl font-extrabold text-blue-700 flex items-center"><i class="fa fa-box mr-2"></i>{{ totalEquipements is defined ? totalEquipements : equipements|length }}</div>
+                    <div class="text-gray-600 mt-2">Total équipements</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                    <div class="text-3xl font-extrabold text-green-700 flex items-center"><i class="fa fa-check-circle mr-2"></i>{{ totalDisponibles is defined ? totalDisponibles : equipements|filter(e => e.etat == 'Disponible' or e.etat == 'disponible')|length }}</div>
+                    <div class="text-gray-600 mt-2">Disponibles</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                    <div class="text-3xl font-extrabold text-blue-600 flex items-center"><i class="fa fa-calendar-check mr-2"></i>{{ totalReserves is defined ? totalReserves : equipements|filter(e => e.etat == 'Prendre' or e.etat == 'prendre')|length }}</div>
+                    <div class="text-gray-600 mt-2">Pris</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                    <div class="text-3xl font-extrabold text-orange-500 flex items-center"><i class="fa fa-wrench mr-2"></i>{{ totalMaintenance is defined ? totalMaintenance : equipements|filter(e => e.etat == 'En maintenance' or e.etat == 'maintenance' or e.etat == 'Maintenance')|length }}</div>
+                    <div class="text-gray-600 mt-2">En maintenance</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <h2 class="text-lg font-semibold mb-2 text-green-700">Équipements disponibles</h2>
+                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                        {% set disponibles = equipements|filter(e => e.etat == 'Disponible' or e.etat == 'disponible') %}
+                        {% if disponibles|length > 0 %}
+                            {% for eq in disponibles %}
+                                <li class="py-2 flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded">Disponible</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-gray-500">Aucun équipement disponible.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold mb-2 text-blue-700">Équipements pris</h2>
+                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                        {% set reserves = equipements|filter(e => e.etat == 'Prendre' or e.etat == 'prendre') %}
+                        {% if reserves|length > 0 %}
+                            {% for eq in reserves %}
+                                <li class="py-2 flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded">Pris</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-gray-500">Aucun équipement pris.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold mb-2 text-orange-700">Équipements en maintenance</h2>
+                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                        {% set en_maintenance = equipements|filter(e => e.etat == 'En maintenance' or e.etat == 'maintenance' or e.etat == 'Maintenance') %}
+                        {% if en_maintenance|length > 0 %}
+                            {% for eq in en_maintenance %}
+                                <li class="py-2 flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded">En maintenance</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-gray-500">Aucun équipement en maintenance.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="font-semibold mb-2">Rechercher et Filtrer</div>
+                <form method="get" class="flex flex-wrap gap-4 items-center">
+                    <input type="text" name="q" placeholder="Rechercher par nom ou ID..." value="{{ app.request.get('q') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-64 pl-3 p-2.5">
+                    <button type="submit" name="cat" value="" class="px-3 py-1 rounded border border-gray-300 bg-gray-100 text-gray-700 hover:bg-blue-100 {% if app.request.get('cat') is empty %}font-bold bg-blue-100{% endif %}">Tous</button>
+                    {% set cats = categories is defined ? categories : [] %}
+                    {% if cats is empty %}
+                        {% set _cats = [] %}
+                        {% for e in equipements %}
+                            {% if e.capteurs is defined and e.capteurs not in _cats %}
+                                {% set _cats = _cats|merge([e.capteurs]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set cats = _cats|sort %}
+                    {% endif %}
+                    {% for cat in cats %}
+                        <button type="submit" name="cat" value="{{ cat }}" class="px-3 py-1 rounded border border-gray-300 bg-gray-100 text-gray-700 hover:bg-blue-100 {% if app.request.get('cat') == cat %}font-bold bg-blue-100{% endif %}">{{ cat }}</button>
+                    {% endfor %}
+                </form>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-lg font-semibold mb-2">Liste des Équipements</div>
+                <div class="text-gray-500 mb-4">{{ equipements|length }} équipement(s) trouvé(s)</div>
+                {% if equipements|length > 0 %}
+                    {% for equipment in equipements %}
+                        <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
+                            <div>
+                                <div class="font-semibold text-gray-900">{{ equipment.nom }}</div>
+                                <div class="text-gray-500 text-sm mb-1">
+                                    <strong>ID:</strong> {{ equipment.id }} | <strong>Catégorie:</strong> {{ equipment.capteurs }}
+                                </div>
+                                <div class="text-gray-500 text-sm">
+                                    <strong>Description:</strong> {{ equipment.description|default('-') }}
+                                </div>
+                                <span class="inline-block mt-2 px-2 py-1 rounded text-xs font-semibold
+                                    {% if equipment.etat == 'disponible' %}bg-green-100 text-green-700
+                                    {% elseif equipment.etat == 'prendre' %}bg-blue-100 text-blue-700
+                                    {% elseif equipment.etat == 'maintenance' %}bg-orange-100 text-orange-700
+                                    {% else %}bg-gray-200 text-gray-700{% endif %}">
+                                    {{ equipment.etat|capitalize }}
+                                </span>
+                            </div>
+                            <div>
+                                <a href="{{ path('admin_equipement_edit', {id: equipment.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Modifier</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-gray-400 py-8">Aucun équipement trouvé.</div>
+                {% endif %}
+            </div>
         </div>
-        <div>
-          <a href="{{ path('admin_equipement_edit', {id: equipment.id}) }}" class="equip-action-btn">Modifier</a>
-        </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <div class="empty-list">Aucun équipement trouvé.</div>
-  {% endif %}
+    </main>
 </div>
 {% endblock %}

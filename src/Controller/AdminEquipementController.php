@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Equipement;
 use App\Repository\EquipementRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,6 +90,59 @@ class AdminEquipementController extends AbstractController
             'totalReserves' => $totalReserves,
             'totalMaintenance' => $totalMaintenance,
             'categories' => $categories,
+        ]);
+    }
+
+    #[Route('/maintenance', name: 'admin_equipement_maintenance')]
+    public function maintenance(EntityManagerInterface $em): Response
+    {
+        $equipementsAll = $em->getRepository(Equipement::class)->findAll();
+        $equipements = array_filter($equipementsAll, function($e) {
+            $etat = strtolower($e->getEtat());
+            return $etat === 'maintenance' || $etat === 'en maintenance';
+        });
+        return $this->render('admin/equipement_maintenance.html.twig', [
+            'equipements' => $equipements,
+            'equipementsAll' => $equipementsAll
+        ]);
+    }
+
+    #[Route('/mes-maintenances', name: 'admin_equipement_mes_maintenances')]
+    public function mesMaintenances(EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_MAINTENANCIER');
+        $equipements = $em->getRepository(Equipement::class)->findBy([
+            'maintenancier' => $this->getUser()
+        ]);
+        return $this->render('admin/equipement_mes_maintenances.html.twig', [
+            'equipements' => $equipements
+        ]);
+    }
+
+    #[Route('/affecter/{id}', name: 'admin_equipement_affecter')]
+    public function affecter(Equipement $equipement, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    {
+        // Récupérer tous les maintenanciers (filtrage PHP car JSON_CONTAINS n'est pas supporté en SQLite/PostgreSQL)
+        $allUsers = $userRepository->findAll();
+        $maintenanciers = array_filter($allUsers, function($user) {
+            return in_array('ROLE_MAINTENANCIER', $user->getRoles());
+        });
+
+        if ($request->isMethod('POST')) {
+            $maintenancierId = $request->request->get('maintenancier');
+            $maintenancier = $userRepository->find($maintenancierId);
+            if ($maintenancier) {
+                $equipement->setMaintenancier($maintenancier);
+                $em->flush();
+                $this->addFlash('success', 'Équipement affecté avec succès !');
+                return $this->redirectToRoute('admin_equipement_maintenance');
+            } else {
+                $this->addFlash('error', 'Aucun maintenancier sélectionné.');
+            }
+        }
+        return $this->render('admin/affecter_maintenancier.html.twig', [
+            'equipement' => $equipement,
+            'maintenanciers' => $maintenanciers
         ]);
     }
 }

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des utilisateurs{% endblock %}
+{% block title %}Gestion des maintenanciers{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -77,8 +77,8 @@ body {
 
 {% block body %}
 <div class="admin-table-container">
-    <div class="admin-title">Gestion des utilisateurs</div>
-    <a href="{{ path('admin_user_new') }}" class="add-btn">Ajouter un utilisateur</a>
+    <div class="admin-title">Gestion des maintenanciers</div>
+    <a href="{{ path('admin_user_new') }}" class="add-btn">Ajouter un maintenancier</a>
     <table class="admin-table">
         <thead>
             <tr>
@@ -96,14 +96,13 @@ body {
                 <td>{{ user.roles|join(', ') }}</td>
                 <td>
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="admin-btn">Modifier</a>
-                    <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="admin-btn" onclick="return confirm('Supprimer cet utilisateur ?');">Supprimer</a>
+                    <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="admin-btn" onclick="return confirm('Supprimer cet maintenancier ?');">Supprimer</a>
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="4">Aucun utilisateur trouvé.</td></tr>
+            <tr><td colspan="4">Aucun maintenancier trouvé.</td></tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 {% endblock %}
-

@@ -1,38 +1,87 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-<div class="bg-white min-h-screen">
-    <div class="p-6 max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Tableau de bord</h1>
-        <div class="mb-8 bg-gray-50 rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-4">Mes informations</h2>
-            <ul class="list-disc pl-6 space-y-2">
-                <li><strong>Identifiant :</strong> {{ app.user.username ?? app.user.email }}</li>
-                <li><strong>Email :</strong> {{ app.user.email }}</li>
-                <li><strong>Rôles :</strong> {{ app.user.roles|join(', ') }}</li>
+{% include 'partials/header.html.twig' %}
+<div class="min-h-full">
+  <main>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Dashboard</h1>
+      <div class="mb-8">
+          <h2 class="text-xl font-semibold mb-4">Actions rapides</h2>
+          <div class="flex flex-wrap gap-4">
+              <a href="{{ path('admin_user_new') }}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Créer un utilisateur</a>
+              <a href="{{ path('admin_user_edit', {'id': app.user.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Modifier mon profil</a>
+          </div>
+      </div>
+      <div>
+          <h2 class="text-xl font-semibold mb-4">Statistiques</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                  <div class="text-3xl font-extrabold text-blue-700">{{ users|length }}</div>
+                  <div class="text-gray-600 mt-2">Utilisateurs</div>
+              </div>
+              <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                  <div class="text-3xl font-extrabold text-green-700">{{ reservations|length }}</div>
+                  <div class="text-gray-600 mt-2">Réservations</div>
+              </div>
+          </div>
+      </div>
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <h2 class="text-lg font-semibold mb-2 text-green-700">Équipements disponibles</h2>
+          {% if equipements is defined %}
+            <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+              {% set disponibles = equipements|filter(e => e.etat == 'Disponible' or e.etat == 'disponible') %}
+              {% if disponibles|length > 0 %}
+                {% for eq in disponibles %}
+                  <li class="py-2 flex items-center justify-between">
+                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded">Disponible</span>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="text-gray-500">Aucun équipement disponible.</li>
+              {% endif %}
             </ul>
-        </div>
-        <div class="mb-8">
-            <h2 class="text-xl font-semibold mb-4">Actions rapides</h2>
-            <div class="flex flex-wrap gap-4">
-                <a href="{{ path('admin_user_new') }}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Créer un utilisateur</a>
-                <a href="{{ path('admin_user_edit', {'id': app.user.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Modifier mon profil</a>
-                <!-- Lien désactivé car la route admin_user_index n'existe pas -->
-                <!-- <a href="#" class="px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-60">Liste des utilisateurs</a> -->
-            </div>
+          {% endif %}
         </div>
         <div>
-            <h2 class="text-xl font-semibold mb-4">Statistiques</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-blue-700">{{ users|length }}</div>
-                    <div class="text-gray-600 mt-2">Utilisateurs</div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-green-700">{{ reservations|length }}</div>
-                    <div class="text-gray-600 mt-2">Réservations</div>
-                </div>
-            </div>
+          <h2 class="text-lg font-semibold mb-2 text-yellow-700">Équipements pris</h2>
+          {% if equipements is defined %}
+            <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+              {% set reserves = equipements|filter(e => e.etat == 'Prendre' or e.etat == 'prendre') %}
+              {% if reserves|length > 0 %}
+                {% for eq in reserves %}
+                  <li class="py-2 flex items-center justify-between">
+                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded">Pris</span>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="text-gray-500">Aucun équipement pris.</li>
+              {% endif %}
+            </ul>
+          {% endif %}
         </div>
+        <div>
+          <h2 class="text-lg font-semibold mb-2 text-red-700">Équipements en maintenance</h2>
+          {% if equipements is defined %}
+            <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+              {% set en_maintenance = equipements|filter(e => e.etat == 'En maintenance' or e.etat == 'maintenance' or e.etat == 'Maintenance') %}
+              {% if en_maintenance|length > 0 %}
+                {% for eq in en_maintenance %}
+                  <li class="py-2 flex items-center justify-between">
+                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
+                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded">En maintenance</span>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="text-gray-500">Aucun équipement en maintenance.</li>
+              {% endif %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </main>
 </div>
 {% endblock %}

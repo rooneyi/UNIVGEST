@@ -1,92 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un utilisateur{% endblock %}
-
-{% block stylesheets %}
-<style>
-body {
-    min-height: 100vh;
-    margin: 0;
-    background: linear-gradient(135deg, #2196f3 0%, #43e97b 100%, #fff 100%);
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-.form-container {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08), 0 1.5px 6px rgba(67, 233, 123, 0.08);
-    max-width: 400px;
-    margin: 60px auto;
-    padding: 32px 28px 28px 28px;
-}
-.form-title {
-    color: #2196f3;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 24px;
-}
-.input-group {
-    margin-bottom: 18px;
-}
-input[type="email"],
-input[type="password"],
-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #43e97b;
-    border-radius: 6px;
-    font-size: 1rem;
-    color: #2196f3;
-    background: #f8faff;
-    margin-top: 6px;
-    transition: border 0.2s;
-}
-input[type="email"]:focus,
-input[type="password"]:focus,
-select:focus {
-    border: 1.5px solid #2196f3;
-    outline: none;
-}
-.button-submit {
-    width: 100%;
-    padding: 10px 0;
-    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 10px;
-}
-.button-submit:hover {
-    background: linear-gradient(90deg, #43e97b 60%, #2196f3 100%);
-}
-</style>
-{% endblock %}
+{% block title %}Ajouter un maintenancier{% endblock %}
 
 {% block body %}
-<div class="form-container">
-    <h2 class="form-title">Ajouter un utilisateur</h2>
-    <form action="{{ path('admin_user_new') }}" method="post">
-        <div class="input-group">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" required>
+    <div class="flex flex-col items-center justify-center min-h-screen">
+        <div class="mx-auto mt-16 max-w-3xl sm:mt-20 px-4 sm:px-6 lg:px-8 w-full">
+            <div class="border-b border-gray-900/10 pb-12 space-y-12 w-full ">
+                <div class="pb-12">
+                    <h2 class="text-base/7 font-semibold text-gray-900 text-center">Ajouter un maintenancier</h2>
+                    <p class="mt-1 text-sm/6 text-gray-600 text-center">Créer un nouveau maintenancier pour la plateforme.</p>
+                    <div class="mt-10 flex flex-col items-center justify-center">
+                        <div class="w-full max-w-md">
+                            <form action="{{ path('admin_user_new') }}" method="post">
+                                <div class="mb-6">
+                                    <label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
+                                    <div class="mt-2">
+                                        <input id="email" name="email" type="email" required placeholder="prenom.nom@esisalama.org"
+                                               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
+                                    </div>
+                                </div>
+                                <div class="mb-6">
+                                    <label for="password" class="block text-sm/6 font-medium text-gray-900">Mot de passe</label>
+                                    <div class="mt-2">
+                                        <input id="password" name="password" type="password" required placeholder="Mot de passe"
+                                               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
+                                    </div>
+                                </div>
+                                <div class="mb-6">
+                                    <label for="role" class="block text-sm/6 font-medium text-gray-900">Rôle</label>
+                                    <div class="mt-2">
+                                        <select id="role" name="role" required
+                                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6">
+                                            <option value="ROLE_USER">Maintenancier</option>
+                                            <option value="ROLE_ADMIN">Administrateur</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <a href="{{ path('admin_user_index') }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"><i class="fa fa-users mr-2"></i>Liste des maintenanciers</a>
+                </div>
+            </div>
         </div>
-        <div class="input-group">
-            <label for="password">Mot de passe</label>
-            <input id="password" name="password" type="password" required>
+        <div class="flex flex-col items-center justify-center w-full mt-6 text-[1.05rem]">
+            <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+                <a href="{{ path('admin_dashboard') }}" class="text-black font-semibold ml-2 transition-colors hover:text-blue-700">Retour à l'administration</a>
+                <span class="hidden sm:inline-block mx-2 text-gray-400">|</span>
+                <a href="{{ path('app_home') }}" title="Retour" class="flex items-center text-black font-semibold transition-colors hover:text-green-600">
+                    <span class="text-xl mr-2">&#8592;</span> Retour accueil
+                </a>
+            </div>
         </div>
-        <div class="input-group">
-            <label for="role">Rôle</label>
-            <select id="role" name="role" required>
-                <option value="ROLE_USER">Utilisateur</option>
-                <option value="ROLE_ADMIN">Administrateur</option>
-            </select>
-        </div>
-        <button type="submit" class="button-submit">Créer</button>
-    </form>
-</div>
+    </div>
 {% endblock %}
-

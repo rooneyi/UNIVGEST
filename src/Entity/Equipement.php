@@ -2,6 +2,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity()]
 class Equipement
@@ -25,6 +26,9 @@ class Equipement
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $capteurs;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    private $maintenancier;
 
     public function getId(): ?int
     {
@@ -75,5 +79,13 @@ class Equipement
         $this->capteurs = $capteurs;
         return $this;
     }
+    public function getMaintenancier(): ?User
+    {
+        return $this->maintenancier;
+    }
+    public function setMaintenancier(?User $maintenancier): self
+    {
+        $this->maintenancier = $maintenancier;
+        return $this;
+    }
 }
-

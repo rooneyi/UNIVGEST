@@ -17,11 +17,21 @@
         <div class="hidden lg:flex lg:gap-x-12">
             <a href="{{ path('app_home') }}" class="text-sm/6 font-semibold text-gray-900">Accueil</a>
             <a href="{{ path('admin_equipement_index') }}" class="text-sm/6 font-semibold text-gray-900">Équipements</a>
-            <a href="{{ path('reservation_index') }}" class="text-sm/6 font-semibold text-gray-900">Réservations</a>
+            <a href="{{ path('admin_equipement_maintenance') }}" class="text-sm/6 font-semibold text-gray-900">Maintenances</a>
+            <a href="{{ path('reservation_index') }}" class="text-sm/6 font-semibold text-gray-900">Prises</a>
             <a href="{{ path('app_home') }}#about" class="text-sm/6 font-semibold text-gray-900">À propos</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="{{ path('login') }}" class="text-sm/6 font-semibold text-gray-900">Connexion <span aria-hidden="true">&rarr;</span></a>
+            {% if not app.user %}
+                <a href="{{ path('login') }}" class="text-sm/6 font-semibold text-gray-900">Connexion <span aria-hidden="true">&rarr;</span></a>
+            {% else %}
+                <a href="{{ path('logout') }}" class="text-sm/6 font-semibold text-gray-900 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                    </svg>
+                    Déconnexion
+                </a>
+            {% endif %}
         </div>
     </nav>
     <!-- Mobile menu, show/hide based on menu open state. -->
@@ -46,11 +56,19 @@
                     <div class="space-y-2 py-6">
                         <a href="{{ path('app_home') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Accueil</a>
                         <a href="{{ path('admin_equipement_index') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Équipements</a>
-                        <a href="{{ path('reservation_index') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Réservations</a>
+                        <a href="{{ path('admin_equipement_maintenance') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Maintenances</a>
+                        <a href="{{ path('reservation_index') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Prises</a>
                         <a href="{{ path('app_home') }}#about" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">À propos</a>
-                    </div>
-                    <div class="py-6">
-                        <a href="{{ path('login') }}" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Connexion</a>
+                        {% if not app.user %}
+                            <a href="{{ path('login') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Connexion <span aria-hidden="true">&rarr;</span></a>
+                        {% else %}
+                            <a href="{{ path('logout') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                                </svg>
+                                Déconnexion
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

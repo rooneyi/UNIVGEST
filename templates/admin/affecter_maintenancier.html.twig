@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+{% block title %}Affecter un maintenancier{% endblock %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="mx-auto mt-16 max-w-3xl sm:mt-20 px-4 sm:px-6 lg:px-8 w-full">
+        <div class="border-b border-gray-900/10 pb-12 space-y-12 w-full ">
+            <div class="pb-12">
+                <h2 class="text-base/7 font-semibold text-gray-900 text-center">Affecter un maintenancier</h2>
+                <p class="mt-1 text-sm/6 text-gray-600 text-center">Sélectionnez un maintenancier pour l'équipement <b>{{ equipement.nom }}</b>.</p>
+                <form method="post" class="mt-10 flex flex-col items-center justify-center">
+                    <div class="w-full max-w-md">
+                        <label for="maintenancier" class="block text-sm/6 font-medium text-gray-900">Maintenancier</label>
+                        <div class="mt-2">
+                            <select id="maintenancier" name="maintenancier" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6">
+                                <option value="">-- Sélectionner --</option>
+                                {% for user in maintenanciers %}
+                                    <option value="{{ user.id }}">{{ user.email }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-md mt-8">
+                        <button type="submit" class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Affecter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="flex flex-col items-center justify-center w-full mt-6 text-[1.05rem]">
+            <a href="{{ path('admin_equipement_maintenance') }}" class="text-black font-semibold transition-colors hover:text-green-600"><span class="text-xl mr-2">&#8592;</span> Retour à la liste</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
