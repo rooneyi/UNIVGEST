@@ -44,7 +44,17 @@ body {
           <tbody class="bg-white divide-y divide-gray-200">
             {% for equipement in equipements %}
             <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ equipement.nom }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-equipement-id="{{ equipement.id }}">
+                <div class="flex items-center space-x-3">
+                  <span>{{ equipement.nom }}</span>
+                  <span class="status-badge {{ equipement.disponible ? 'status-available' : 'status-unavailable' }}">
+                    {{ equipement.disponible ? 'Disponible' : 'Indisponible' }}
+                  </span>
+                </div>
+                <div class="sensor-details mt-1">
+                  <!-- Les détails des capteurs seront mis à jour par JavaScript -->
+                </div>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ equipement.couleur|default('-') }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ equipement.categorie|default('-') }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -64,7 +74,7 @@ body {
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {% if equipement.disponible %}
-                  <button class="inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150" type="button" onclick="openModal({{ equipement.id }})">
+                  <button class="action-button inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150" type="button" onclick="openModal({{ equipement.id }})">
                     <svg class="-ml-0.5 h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     Réserver
                   </button>

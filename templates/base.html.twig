@@ -1,432 +1,122 @@
 <!DOCTYPE html>
 <html>
     <head>
-
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <title>{% block title %}UDBL - Gestion des Équipements{% endblock %}</title>
+        <link rel="icon" href="{{ asset('logo/udbl-logo.svg') }}" type="image/svg+xml">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {% block stylesheets %}
             <style>
-                .hero-gradient {
-                    background: linear-gradient(135deg, #ffffff 0%, #e6f7ff 50%, #e6ffee 100%);
+                :root {
+                    --primary-blue: #2196F3;
+                    --primary-green: #43E97B;
+                    --gray-50: #f8fafc;
+                    --gray-100: #f1f5f9;
+                    --gray-900: #0f172a;
                 }
-                .card-hover:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                
+                .udbl-logo {
+                    height: 2.5rem;
+                    width: auto;
                 }
-                .stats-item {
-                    transition: all 0.3s ease;
+                
+                .status-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 9999px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
                 }
-                .stats-item:hover {
-                    background-color: #f0f9ff;
+                
+                .status-available {
+                    background-color: #dcfce7;
+                    color: #166534;
+                }
+                
+                .status-reserved {
+                    background-color: #dbeafe;
+                    color: #1e40af;
+                }
+                
+                .status-unavailable {
+                    background-color: #fee2e2;
+                    color: #991b1b;
+                }
+                
+                .equipment-card {
+                    transition: all 0.2s ease-in-out;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .equipment-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+                    border-color: var(--primary-blue);
+                }
+                
+                .btn-primary {
+                    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-green) 100%);
+                    border: none;
+                    color: white;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                }
+                
+                .btn-primary:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+                }
+                
+                .navbar-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    font-weight: 600;
+                    color: var(--gray-900);
+                    text-decoration: none;
+                }
+                
+                .real-time-indicator {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.5rem 1rem;
+                    background: #f0f9ff;
+                    border: 1px solid #0ea5e9;
+                    border-radius: 0.5rem;
+                    font-size: 0.875rem;
+                    color: #0369a1;
+                }
+                
+                .pulse-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: #22c55e;
+                    border-radius: 50%;
+                    animation: pulse 2s infinite;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
                 }
             </style>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         {% endblock %}
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    {% block javascripts %}
-            <script>
-                // Simple JavaScript for mobile menu toggle (could be enhanced)
-                document.addEventListener('DOMContentLoaded', function() {
-                    const mobileMenuButton = document.querySelector('.md\\:hidden');
-                    // You would add click handler here to toggle a mobile menu
-                    // This is just a placeholder for actual functionality
-                });
-            </script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="{{ asset('js/esp32-monitor.js') }}"></script>
+        {% block javascripts %}
         {% endblock %}
     </head>
-    <body class="font-sans bg-gray-50">
+    <body class="font-sans bg-gray-50 antialiased">
         <main class="main-content">
             {% block body %}
 
-                <div class="bg-white">
-                    <header class="absolute inset-x-0 top-0 z-50">
-                        <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-                            <div class="flex lg:flex-1">
-                                <a href="#" class="-m-1.5 p-1.5">
-                                    <span class="sr-only">Your Company</span>
-                                    <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="" />
-                                </a>
-                            </div>
-                            <div class="flex lg:hidden">
-                                <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                                    <span class="sr-only">Open main menu</span>
-                                    <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="hidden lg:flex lg:gap-x-12">
-                                <a href="#" class="text-sm/6 font-semibold text-gray-900">Product</a>
-                                <a href="#" class="text-sm/6 font-semibold text-gray-900">Features</a>
-                                <a href="#" class="text-sm/6 font-semibold text-gray-900">Marketplace</a>
-                                <a href="#" class="text-sm/6 font-semibold text-gray-900">Company</a>
-                            </div>
-                            <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                                <a href="#" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
-                            </div>
-                        </nav>
-                        <!-- Mobile menu, show/hide based on menu open state. -->
-                        <div class="lg:hidden" role="dialog" aria-modal="true">
-                            <!-- Background backdrop, show/hide based on slide-over state. -->
-                            <div class="fixed inset-0 z-50"></div>
-                            <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-                                <div class="flex items-center justify-between">
-                                    <a href="#" class="-m-1.5 p-1.5">
-                                        <span class="sr-only">Your Company</span>
-                                        <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="" />
-                                    </a>
-                                    <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-                                        <span class="sr-only">Close menu</span>
-                                        <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="mt-6 flow-root">
-                                    <div class="-my-6 divide-y divide-gray-500/10">
-                                        <div class="space-y-2 py-6">
-                                            <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Product</a>
-                                            <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Features</a>
-                                            <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Marketplace</a>
-                                            <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Company</a>
-                                        </div>
-                                        <div class="py-6">
-                                            <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Log in</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="relative isolate px-6 pt-14 lg:px-8">
-                        <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-                            <div class="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-288.75" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
-                        </div>
-                        <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-                            <div class="hidden sm:mb-8 sm:flex sm:justify-center">
-                                <div class="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                                    Announcing our next round of funding. <a href="#" class="font-semibold text-indigo-600"><span class="absolute inset-0" aria-hidden="true"></span>Read more <span aria-hidden="true">&rarr;</span></a>
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">Data to enrich your online business</h1>
-                                <p class="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat.</p>
-                                <div class="mt-10 flex items-center justify-center gap-x-6">
-                                    <a href="#" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Get started</a>
-                                    <a href="#" class="text-sm/6 font-semibold text-gray-900">Learn more <span aria-hidden="true">→</span></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-                            <div class="relative left-[calc(50%+3rem)] aspect-1155/678 w-144.5 -translate-x-1/2 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-288.75" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Stats Section -->
-                <section class="bg-white py-12">
-                    <div class="container mx-auto px-4">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div class="stats-item bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center">
-                                <div class="text-blue-800 mb-3">
-                                    <i class="fas fa-laptop text-4xl"></i>
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-800 mb-2">248</h3>
-                                <p class="text-gray-600">Équipements disponibles</p>
-                            </div>
-                            <div class="stats-item bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center">
-                                <div class="text-green-600 mb-3">
-                                    <i class="fas fa-calendar-check text-4xl"></i>
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-800 mb-2">56</h3>
-                                <p class="text-gray-600">Réservations actives</p>
-                            </div>
-                            <div class="stats-item bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center">
-                                <div class="text-blue-500 mb-3">
-                                    <i class="fas fa-users text-4xl"></i>
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-800 mb-2">42</h3>
-                                <p class="text-gray-600">Départements</p>
-                            </div>
-                            <div class="stats-item bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center">
-                                <div class="text-green-500 mb-3">
-                                    <i class="fas fa-check-circle text-4xl"></i>
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-800 mb-2">94%</h3>
-                                <p class="text-gray-600">Disponibilité</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Features Section -->
-                <section class="py-16 bg-gray-50">
-                    <div class="container mx-auto px-4">
-                        <div class="text-center mb-12">
-                            <h2 class="text-3xl font-bold text-blue-900 mb-4">Fonctionnalités Clés</h2>
-                            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Découvrez comment notre système simplifie la gestion des équipements universitaires</p>
-                        </div>
-
-                        <div class="grid md:grid-cols-3 gap-8">
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-green-600 mb-4">
-                                    <i class="fas fa-calendar-alt text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Réservation en Ligne</h3>
-                                <p class="text-gray-600">Planifiez et gérez les réservations d'équipements en temps réel avec un calendrier intuitif.</p>
-                            </div>
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-blue-600 mb-4">
-                                    <i class="fas fa-barcode text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Suivi des Équipements</h3>
-                                <p class="text-gray-600">Système de traçabilité complet avec codes QR pour un inventaire précis.</p>
-                            </div>
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-green-500 mb-4">
-                                    <i class="fas fa-chart-line text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Rapports Analytiques</h3>
-                                <p class="text-gray-600">Générez des rapports détaillés sur l'utilisation et la maintenance des équipements.</p>
-                            </div>
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-blue-500 mb-4">
-                                    <i class="fas fa-bell text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Notifications Automatiques</h3>
-                                <p class="text-gray-600">Alertes pour les retours, maintenances et réservations en attente.</p>
-                            </div>
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-green-400 mb-4">
-                                    <i class="fas fa-users-cog text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Gestion Multi-maintenanciers</h3>
-                                <p class="text-gray-600">Accès personnalisé pour administrateurs, enseignants et techniciens.</p>
-                            </div>
-                            <div class="card-hover bg-white p-8 rounded-xl shadow-md transition duration-300">
-                                <div class="text-blue-400 mb-4">
-                                    <i class="fas fa-mobile-alt text-4xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">Accès Mobile</h3>
-                                <p class="text-gray-600">Interface responsive adaptée à tous les appareils pour une gestion en déplacement.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Equipment Categories -->
-                <section class="py-16 bg-white">
-                    <div class="container mx-auto px-4">
-                        <div class="text-center mb-12">
-                            <h2 class="text-3xl font-bold text-blue-900 mb-4">Catégories d'Équipements</h2>
-                            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Parcourez les différents types d'équipements disponibles à l'université</p>
-                        </div>
-
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="group relative overflow-hidden rounded-xl shadow-md h-48">
-                                <img src="https://via.placeholder.com/400x300" alt="Informatique" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-blue-900 bg-opacity-60 group-hover:bg-opacity-70 transition flex items-center justify-center">
-                                    <h3 class="text-white text-xl font-bold">Informatique</h3>
-                                </div>
-                            </div>
-                            <div class="group relative overflow-hidden rounded-xl shadow-md h-48">
-                                <img src="https://via.placeholder.com/400x300" alt="Laboratoire" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-green-700 bg-opacity-60 group-hover:bg-opacity-70 transition flex items-center justify-center">
-                                    <h3 class="text-white text-xl font-bold">Laboratoire</h3>
-                                </div>
-                            </div>
-                            <div class="group relative overflow-hidden rounded-xl shadow-md h-48">
-                                <img src="https://via.placeholder.com/400x300" alt="Audiovisuel" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-blue-700 bg-opacity-60 group-hover:bg-opacity-70 transition flex items-center justify-center">
-                                    <h3 class="text-white text-xl font-bold">Audiovisuel</h3>
-                                </div>
-                            </div>
-                            <div class="group relative overflow-hidden rounded-xl shadow-md h-48">
-                                <img src="https://via.placeholder.com/400x300" alt="Bibliothèque" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-green-600 bg-opacity-60 group-hover:bg-opacity-70 transition flex items-center justify-center">
-                                    <h3 class="text-white text-xl font-bold">Bibliothèque</h3>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-10">
-                            <button class="border-2 border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white px-8 py-3 rounded-lg font-medium transition duration-300">
-                                Voir Toutes les Catégories <i class="fas fa-arrow-right ml-2"></i>
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Testimonials -->
-                <section class="py-16 bg-gray-50">
-                    <div class="container mx-auto px-4">
-                        <div class="text-center mb-12">
-                            <h2 class="text-3xl font-bold text-blue-900 mb-4">Témoignages</h2>
-                            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Ce que disent les maintenanciers de notre système</p>
-                        </div>
-
-                        <div class="grid md:grid-cols-3 gap-8">
-                            <div class="bg-white p-8 rounded-xl shadow-sm">
-                                <div class="flex items-center mb-4">
-                                    <div class="text-yellow-400 mr-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                                <p class="text-gray-700 mb-6">"Le système a révolutionné notre façon de gérer les équipements. Plus de conflits de réservation et un suivi impeccable des maintenances."</p>
-                                <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/50" alt="Prof. Mulenga" class="h-12 w-12 rounded-full mr-4">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800">Prof. Mulenga</h4>
-                                        <p class="text-sm text-gray-600">Département de Physique</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-white p-8 rounded-xl shadow-sm">
-                                <div class="flex items-center mb-4">
-                                    <div class="text-yellow-400 mr-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
-                                    </div>
-                                </div>
-                                <p class="text-gray-700 mb-6">"En tant que technicien, j'apprécie particulièrement les alertes pour les maintenances préventives. Cela nous permet d'anticiper les pannes."</p>
-                                <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/50" alt="Technicien Kabasele" class="h-12 w-12 rounded-full mr-4">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800">Technicien Kabasele</h4>
-                                        <p class="text-sm text-gray-600">Service Informatique</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-white p-8 rounded-xl shadow-sm">
-                                <div class="flex items-center mb-4">
-                                    <div class="text-yellow-400 mr-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                                <p class="text-gray-700 mb-6">"La réservation en ligne est tellement simple. Je peux vérifier la disponibilité des équipements et réserver en quelques clics depuis mon bureau."</p>
-                                <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/50" alt="Dr. Ngoie" class="h-12 w-12 rounded-full mr-4">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800">Dr. Ngoie</h4>
-                                        <p class="text-sm text-gray-600">Département de Chimie</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Call to Action -->
-                <section class="py-16 bg-blue-900 text-white">
-                    <div class="container mx-auto px-4 text-center">
-                        <h2 class="text-3xl font-bold mb-6">Prêt à optimiser la gestion de vos équipements ?</h2>
-                        <p class="text-xl mb-8 max-w-2xl mx-auto">Rejoignez les départements qui utilisent déjà notre système pour une gestion plus efficace de leurs ressources.</p>
-                        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                            <button class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition shadow-lg">
-                                <i class="fas fa-user-plus mr-2"></i> Créer un Compte
-                            </button>
-                            <button class="bg-white hover:bg-gray-100 text-blue-900 px-8 py-3 rounded-lg font-medium transition shadow-lg">
-                                <i class="fas fa-play-circle mr-2"></i> Voir la Démo
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Footer -->
-                <footer class="bg-gray-900 text-white pt-16 pb-8">
-                    <div class="container mx-auto px-4">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                            <div>
-                                <div class="flex items-center mb-4">
-                                    <img src="https://via.placeholder.com/40" alt="Logo" class="h-10 mr-3">
-                                    <h3 class="text-xl font-bold">Université Don Bosco</h3>
-                                </div>
-                                <p class="text-gray-400 mb-4">Lubumbashi, République Démocratique du Congo</p>
-                                <div class="flex space-x-4">
-                                    <a href="#" class="text-gray-400 hover:text-white transition">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="#" class="text-gray-400 hover:text-white transition">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a href="#" class="text-gray-400 hover:text-white transition">
-                                        <i class="fab fa-linkedin-in"></i>
-                                    </a>
-                                    <a href="#" class="text-gray-400 hover:text-white transition">
-                                        <i class="fab fa-youtube"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-semibold mb-4">Liens Utiles</h4>
-                                <ul class="space-y-2">
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Accueil</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">À Propos</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Équipements</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">FAQ</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-semibold mb-4">Services</h4>
-                                <ul class="space-y-2">
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Réservation</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Maintenance</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Inventaire</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Rapports</a></li>
-                                    <li><a href="#" class="text-gray-400 hover:text-white transition">Support</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-semibold mb-4">Contact</h4>
-                                <ul class="space-y-3">
-                                    <li class="flex items-start">
-                                        <i class="fas fa-map-marker-alt mt-1 mr-3 text-green-500"></i>
-                                        <span class="text-gray-400">Avenue Kasaï, Q. Golf, Lubumbashi</span>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <i class="fas fa-phone-alt mr-3 text-green-500"></i>
-                                        <span class="text-gray-400">+243 999 999 999</span>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <i class="fas fa-envelope mr-3 text-green-500"></i>
-                                        <span class="text-gray-400">equipements@univdonbosco.edu.cd</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-gray-800 pt-8">
-                            <div class="flex flex-col md:flex-row justify-between items-center">
-                                <p class="text-gray-400 mb-4 md:mb-0">© 2023 Université Don Bosco Lubumbashi. Tous droits réservés.</p>
-                                <div class="flex space-x-6">
-                                    <a href="#" class="text-gray-400 hover:text-white transition">Confidentialité</a>
-                                    <a href="#" class="text-gray-400 hover:text-white transition">Conditions</a>
-                                    <a href="#" class="text-gray-400 hover:text-white transition">Accessibilité</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-
-                {% endblock %}
+            <!-- Le contenu sera défini dans les templates enfants -->
+            {% endblock %}
         </main>
     </body>
 </html>
