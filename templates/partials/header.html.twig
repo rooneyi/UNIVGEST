@@ -1,59 +1,95 @@
-<header class="mx-auto max-w-5xl absolute inset-x-0 top-0 z-50">
-    <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div class="flex lg:flex-1">
-            <a href="#" class="-m-1.5 p-1.5">
-                <span class="sr-only">Université Don Bosco de Lubumbashi</span>
-                <img class="h-8 w-auto" src="{{ asset('logo/udbl-logo.png') }}" alt="Logo UDBL" />
-            </a>
-        </div>
-        <div class="flex lg:hidden">
-            <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                <span class="sr-only">Ouvrir le menu principal</span>
-                <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
-        </div>
-        <div class="hidden lg:flex lg:gap-x-12">
-            <a href="{{ path('app_home') }}" class="text-sm/6 font-semibold text-gray-900">Accueil</a>
-            <a href="{{ path('admin_equipement_index') }}" class="text-sm/6 font-semibold text-gray-900">Équipements</a>
-            <a href="{{ path('reservation_index') }}" class="text-sm/6 font-semibold text-gray-900">Réservations</a>
-            <a href="{{ path('app_home') }}#about" class="text-sm/6 font-semibold text-gray-900">À propos</a>
-        </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="{{ path('login') }}" class="text-sm/6 font-semibold text-gray-900">Connexion <span aria-hidden="true">&rarr;</span></a>
-        </div>
-    </nav>
-    <!-- Mobile menu, show/hide based on menu open state. -->
-    <div class="lg:hidden" role="dialog" aria-modal="true">
-        <!-- Background backdrop, show/hide based on slide-over state. -->
-        <div class="fixed inset-0 z-50"></div>
-        <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-            <div class="flex items-center justify-between">
-                <a href="#" class="-m-1.5 p-1.5">
-                    <span class="sr-only">Université Don Bosco de Lubumbashi</span>
-                    <img class="h-8 w-auto" src="{{ asset('logo/udbl-logo.png') }}" alt="Logo UDBL" />
+<header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center justify-between h-16" aria-label="Navigation principale">
+            <div class="flex items-center">
+                <a href="{{ path('app_home') }}" class="navbar-brand">
+                    <img src="{{ asset('logo/udbl-logo.svg') }}" alt="UDBL" class="udbl-logo" />
+                    <span class="hidden sm:block text-lg font-semibold text-gray-900">UDBL</span>
                 </a>
-                <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-                    <span class="sr-only">Fermer le menu</span>
-                    <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </button>
             </div>
-            <div class="mt-6 flow-root">
-                <div class="-my-6 divide-y divide-gray-500/10">
-                    <div class="space-y-2 py-6">
-                        <a href="{{ path('app_home') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Accueil</a>
-                        <a href="{{ path('admin_equipement_index') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Équipements</a>
-                        <a href="{{ path('reservation_index') }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Réservations</a>
-                        <a href="{{ path('app_home') }}#about" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">À propos</a>
-                    </div>
-                    <div class="py-6">
-                        <a href="{{ path('login') }}" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Connexion</a>
-                    </div>
+            
+            <!-- Indicateur temps réel -->
+            <div class="hidden md:flex items-center">
+                <div class="real-time-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>Suivi en temps réel</span>
                 </div>
             </div>
+            
+            <!-- Menu desktop -->
+            <div class="hidden lg:flex lg:items-center lg:space-x-8">
+                <a href="{{ path('app_home') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Accueil
+                </a>
+                <a href="{{ path('admin_equipement_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-laptop mr-2"></i>Équipements
+                </a>
+                <a href="{{ path('reservation_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-calendar-check mr-2"></i>Réservations
+                </a>
+                {% if app.user %}
+                    <div class="flex items-center space-x-4 ml-8 pl-8 border-l border-gray-200">
+                        <span class="text-sm text-gray-600">{{ app.user.email }}</span>
+                        <a href="{{ path('logout') }}" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{{ path('login') }}" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Menu mobile button -->
+            <div class="lg:hidden">
+                <button type="button" class="mobile-menu-button p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100">
+                    <span class="sr-only">Ouvrir le menu</span>
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu mobile -->
+        <div class="mobile-menu hidden lg:hidden border-t border-gray-200 py-4">
+            <div class="space-y-2">
+                <a href="{{ path('app_home') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-home mr-3"></i>Accueil
+                </a>
+                <a href="{{ path('admin_equipement_index') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-laptop mr-3"></i>Équipements
+                </a>
+                <a href="{{ path('reservation_index') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-calendar-check mr-3"></i>Réservations
+                </a>
+                {% if app.user %}
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <div class="px-3 py-2 text-sm text-gray-600">{{ app.user.email }}</div>
+                        <a href="{{ path('logout') }}" class="block px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50 rounded-md">
+                            <i class="fas fa-sign-out-alt mr-3"></i>Déconnexion
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <a href="{{ path('login') }}" class="block px-3 py-2 text-base font-medium text-blue-600 hover:bg-blue-50 rounded-md">
+                            <i class="fas fa-sign-in-alt mr-3"></i>Connexion
+                        </a>
+                    </div>
+                {% endif %}
+            </a>
         </div>
     </div>
 </header>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+});
+</script>
