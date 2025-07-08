@@ -64,13 +64,46 @@ class ESP32Monitor {
             if (statusBadge) {
                 statusBadge.className = `status-badge ${this.getStatusClass(equipement)}`;
                 statusBadge.textContent = this.getStatusText(equipement);
+                
+                // Ajout d'informations détaillées
+                const detailsElement = statusElement.querySelector('.sensor-details');
+                if (detailsElement) {
+                    this.updateSensorDetails(detailsElement, equipement);
+                }
             }
             
             if (actionButton) {
                 actionButton.disabled = !equipement.disponible;
                 actionButton.textContent = equipement.disponible ? 'Réserver' : 'Indisponible';
+                
+                // Ajout d'une classe pour l'état physique
+                if (equipement.physically_present === false) {
+                    actionButton.classList.add('physically-absent');
+                    actionButton.title = 'Équipement physiquement absent';
+                } else {
+                    actionButton.classList.remove('physically-absent');
+                    actionButton.title = '';
+                }
             }
         }
+    }
+
+    updateSensorDetails(detailsElement, equipement) {
+        if (!equipement.sensor_data) return;
+        
+        const { weight, distance, rfid_tag } = equipement.sensor_data;
+        const lastUpdate = equipement.last_update;
+        
+        detailsElement.innerHTML = `
+            <div class="sensor-info">
+                <small class="text-gray-500">
+                    ${weight ? `Poids: ${weight}g` : ''} 
+                    ${distance ? `| Distance: ${distance}cm` : ''}
+                    ${rfid_tag ? `| RFID: ${rfid_tag.substring(0, 8)}...` : ''}
+                    ${lastUpdate ? `| MAJ: ${new Date(lastUpdate).toLocaleTimeString()}` : ''}
+                </small>
+            </div>
+        `;
     }
 
     getStatusClass(equipement) {

@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Entity\Equipement;
 use App\Entity\Reservation;
 use App\Repository\EquipementRepository;
+use App\Service\EquipementDetectionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,6 +15,13 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api')]
 class ApiController extends AbstractController
 {
+    private EquipementDetectionService $detectionService;
+
+    public function __construct(EquipementDetectionService $detectionService)
+    {
+        $this->detectionService = $detectionService;
+    }
+
     #[Route('/equipement/status/{id}', name: 'api_equipement_status', methods: ['GET'])]
     public function getEquipementStatus(int $id, EquipementRepository $equipementRepo): JsonResponse
     {
@@ -30,6 +38,13 @@ class ApiController extends AbstractController
             'nom' => $equipement->getNom(),
             'disponible' => $equipement->isDisponible(),
             'etat' => $equipement->getEtat(),
+            'physically_present' => $equipement->isPhysiquementPresent(),
+            'last_update' => $equipement->getDerniereMiseAJour()?->format('Y-m-d H:i:s'),
+            'sensor_data' => [
+                'weight' => $equipement->getPoidsActuel(),
+                'distance' => $equipement->getDistanceActuelle(),
+                'rfid_tag' => $equipement->getRfidTag()
+            ],
             'reservation_active' => $reservation ? [
                 'id' => $reservation->getId(),
                 'nom_personne' => $reservation->getNomPersonne(),
@@ -39,12 +54,11 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/equipement/update-status/{id}', name: 'api_equipement_update_status', methods: ['POST'])]
-    public function updateEquipementStatus(
+    #[Route('/equipement/sensor-data/{id}', name: 'api_equipement_sensor_data', methods: ['POST'])]
+    public function receiveSensorData(
         int $id, 
         Request $request, 
-        EquipementRepository $equipementRepo,
-        EntityManagerInterface $em
+        EquipementRepository $equipementRepo
     ): JsonResponse {
         $equipement = $equipementRepo->find($id);
         
@@ -60,34 +74,48 @@ class ApiController extends AbstractController
             return new JsonResponse(['error' => 'Clé API invalide'], 401);
         }
 
-        if (isset($data['connected'])) {
-            $connected = (bool) $data['connected'];
+        try {
+            $resultatDetection = $this->detectionService->traiterDonneesESP32($id, $data);
             
-            // Si l'équipement est déconnecté physiquement, marquer comme indisponible
-            if (!$connected) {
-                $equipement->setEtat('maintenance');
-                $equipement->setDisponible(false);
-            } else {
-                // Si reconnecté et pas de réservation active, marquer comme disponible
-                $reservation = $equipementRepo->findActiveReservation($equipement);
-                if (!$reservation) {
-                    $equipement->setEtat('disponible');
-                    $equipement->setDisponible(true);
-                }
-            }
-            
-            $em->flush();
+            return new JsonResponse([
+                'success' => true,
+                'detection_result' => $resultatDetection,
+                'equipement' => [
+                    'id' => $equipement->getId(),
+                    'nom' => $equipement->getNom(),
+                    'disponible' => $equipement->isDisponible(),
+                    'etat' => $equipement->getEtat(),
+                    'physically_present' => $equipement->isPhysiquementPresent()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    #[Route('/equipement/calibrate/{id}', name: 'api_equipement_calibrate', methods: ['POST'])]
+    public function calibrateEquipement(
+        int $id,
+        Request $request
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        
+        // Vérification de la clé API
+        $apiKey = $request->headers->get('X-API-Key');
+        if ($apiKey !== $_ENV['ESP32_API_KEY'] ?? 'esp32_secret_key') {
+            return new JsonResponse(['error' => 'Clé API invalide'], 401);
         }
 
-        return new JsonResponse([
-            'success' => true,
-            'equipement' => [
-                'id' => $equipement->getId(),
-                'nom' => $equipement->getNom(),
-                'disponible' => $equipement->isDisponible(),
-                'etat' => $equipement->getEtat()
-            ]
-        ]);
+        $success = $this->detectionService->calibrerEquipement($id, $data);
+        
+        if ($success) {
+            return new JsonResponse(['success' => true, 'message' => 'Calibrage réussi']);
+        } else {
+            return new JsonResponse(['error' => 'Équipement non trouvé'], 404);
+        }
     }
 
     #[Route('/equipements/all', name: 'api_equipements_all', methods: ['GET'])]
