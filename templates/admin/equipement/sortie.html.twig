@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sortie des Équipements{% endblock %}
+
+{% block body %}
+<div class="min-h-full bg-gray-50">
+    {% include 'partials/header.html.twig' %}
+    <main>
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4 text-gray-900">Gestion des Équipements</h2>
+                <form method="get" class="flex flex-wrap gap-4 items-center mb-6">
+                    <input type="text" name="q" placeholder="Rechercher par nom ou ID..."
+                           value="{{ app.request.get('q') }}"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-64 pl-3 p-2.5">
+                    <button type="submit" name="cat" value=""
+                            class="px-3 py-1 rounded border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 {% if app.request.get('cat') is empty %}font-bold bg-gray-100{% endif %}">
+                        Tous
+                    </button>
+                    {% set cats = categories is defined ? categories : [] %}
+                    {% if cats is empty %}
+                        {% set _cats = [] %}
+                        {% for e in equipements %}
+                            {% if e.capteurs is defined and e.capteurs not in _cats %}
+                                {% set _cats = _cats|merge([e.capteurs]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set cats = _cats|sort %}
+                    {% endif %}
+                    {% for cat in cats %}
+                        <button type="submit" name="cat" value="{{ cat }}"
+                                class="px-3 py-1 rounded border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 {% if app.request.get('cat') == cat %}font-bold bg-gray-100{% endif %}">{{ cat }}</button>
+                    {% endfor %}
+                </form>
+                <div class="bg-gray-50 rounded-lg shadow p-4">
+                    <div class="text-lg font-semibold mb-2 text-gray-900">Liste des Équipements</div>
+                    <div class="text-gray-500 mb-4">{{ equipements|length }} équipement(s) trouvé(s)</div>
+                    {% if equipements|length > 0 %}
+                        {% for equipment in equipements %}
+                            <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
+                                <div>
+                                    <div class="font-semibold text-gray-900">{{ equipment.nom }}</div>
+                                    <div class="text-gray-500 text-sm mb-1">
+                                        <strong>ID:</strong> {{ equipment.id }} |
+                                        <strong>Catégorie:</strong> {{ equipment.capteurs }}
+                                    </div>
+                                    <div class="text-gray-500 text-sm">
+                                        <strong>Description:</strong> {{ equipment.description|default('-') }}
+                                    </div>
+                                    <span class="inline-block mt-2 px-2 py-1 rounded text-xs font-semibold
+                                    {% if equipment.etat == 'Disponible' %}bg-green-100 text-green-700
+                                    {% elseif equipment.etat == 'Pris' %}bg-blue-100 text-blue-700
+                                    {% elseif equipment.etat == 'Maintenance' %}bg-orange-100 text-orange-700
+                                    {% else %}bg-gray-200 text-gray-700{% endif %}">
+                                    {{ equipment.etat|capitalize }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <input type="checkbox" name="equipements[]" value="{{ equipment.id }}" class="ml-4">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-gray-400 py-8">Aucun équipement trouvé.</div>
+                    {% endif %}
+                </div>
+                </form>
+                <form method="post" class="mt-6">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Valider la sortie</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

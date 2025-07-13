@@ -1,34 +1,27 @@
 
 <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <nav class="flex items-center justify-between h-16" aria-label="Navigation principale">
+    <div class="mx-auto max-7xl px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center justify-around h-16" aria-label="Navigation principale">
             <div class="flex items-center">
                 <a href="{{ path('app_home') }}" class="navbar-brand">
-                    <img src="{{ asset('logo/udbl-logo.svg') }}" alt="UDBL" class="udbl-logo" />
-                    <span class="hidden sm:block text-lg font-semibold text-gray-900">UDBL</span>
+                    <img class="h-10 w-auto" src="{{ asset('logo/udbl-logo.png') }}" alt="Logo UDBL" />
                 </a>
             </div>
 
-            
-            <!-- Indicateur temps réel -->
-            <div class="hidden md:flex items-center">
-                <div class="real-time-indicator">
-                    <div class="pulse-dot"></div>
-                    <span>Suivi en temps réel</span>
-                </div>
-            </div>
-            
             <!-- Menu desktop -->
             <div class="hidden lg:flex lg:items-center lg:space-x-8">
                 <a href="{{ path('app_home') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                     <i class="fas fa-home mr-2"></i>Accueil
                 </a>
-                <a href="{{ path('admin_equipement_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-laptop mr-2"></i>Équipements
-                </a>
-                <a href="{{ path('reservation_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-calendar-check mr-2"></i>Réservations
-                </a>
+                {% if is_granted("ROLE_ADMIN") and is_granted("ROLE_GESTIONNAIRE") %}
+                    <a href="{{ path('admin_dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Tableau de bord</a>
+                    <a href="{{ path('admin_equipement_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-laptop mr-2"></i>Équipements
+                    </a>
+                    <a href="{{ path('reservation_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-calendar-check mr-2"></i>Prise
+                    </a>
+                {% endif %}
                 {% if app.user %}
                     <div class="flex items-center space-x-4 ml-8 pl-8 border-l border-gray-200">
                         <span class="text-sm text-gray-600">{{ app.user.email }}</span>
@@ -42,7 +35,7 @@
                     </a>
                 {% endif %}
             </div>
-            
+
             <!-- Menu mobile button -->
             <div class="lg:hidden">
                 <button type="button" class="mobile-menu-button p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100">
@@ -51,7 +44,7 @@
                 </button>
             </div>
         </nav>
-        
+
         <!-- Menu mobile -->
         <div class="mobile-menu hidden lg:hidden border-t border-gray-200 py-4">
             <div class="space-y-2">
@@ -87,7 +80,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     const mobileMenu = document.querySelector('.mobile-menu');
-    
+
     if (mobileMenuButton && mobileMenu) {
         mobileMenuButton.addEventListener('click', function() {
             mobileMenu.classList.toggle('hidden');

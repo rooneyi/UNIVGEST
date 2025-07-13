@@ -1,139 +1,31 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}Mes réservations{% endblock %}
 
-{% block stylesheets %}
-<style>
-body {
-    min-height: 100vh;
-    margin: 0;
-    background: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-.reservation-container {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(33, 150, 243, 0.06), 0 1.5px 6px rgba(67, 233, 123, 0.06);
-    max-width: 800px;
-    margin: 60px auto;
-    padding: 32px 28px 28px 28px;
-}
-.reservation-title {
-    color: #2196f3;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 24px;
-    letter-spacing: 1px;
-}
-.equipements-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 24px;
-    background: #fff;
-}
-.equipements-table th, .equipements-table td {
-    border: 1px solid #e0e0e0;
-    padding: 10px 8px;
-    text-align: center;
-}
-.equipements-table th {
-    background: #f5faff;
-    color: #2196f3;
-    font-weight: 600;
-}
-.equipements-table tr:nth-child(even) {
-    background: #f8faff;
-}
-.reserve-btn, .cancel-btn {
-    background: linear-gradient(90deg, #2196f3 60%, #43e97b 100%);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 7px 18px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s;
-    box-shadow: 0 1px 4px rgba(33,150,243,0.07);
-}
-.cancel-btn {
-    background: #e53935;
-}
-.cancel-btn:hover {
-    background: #b71c1c;
-}
-.reserve-btn:disabled, .cancel-btn:disabled {
-    background: #bdbdbd;
-    cursor: not-allowed;
-}
-.success-message {
-    color: #4caf50;
-    background: #e8f5e9;
-    border-left: 4px solid #4caf50;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-.error-message {
-    color: #f44336;
-    background: #ffebee;
-    border-left: 4px solid #f44336;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-</style>
-{% endblock %}
-
-{% block body %}
-<div class="reservation-container">
-    <div class="reservation-title">Mes réservations</div>
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="{{ label == 'success' ? 'success-message' : 'error-message' }}">{{ message }}</div>
-        {% endfor %}
-    {% endfor %}
-    <table class="equipements-table">
-        <thead>
-            <tr>
-                <th>Nom de l'équipement</th>
-                <th>Date de réservation</th>
-                <th>État</th>
-                <th>Statut</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for reservation in reservations %}
-            <tr>
-                <td>{{ reservation.equipement.nom }}</td>
-                <td>{{ reservation.dateReservation|date('d/m/Y H:i') }}</td>
-                <td>{{ reservation.equipement.etat }}</td>
-                <td>
-                    {% if reservation.active %}
-                        <span style="color:#43e97b; font-weight:600;">En cours</span>
-                    {% else %}
-                        <span style="color:#888;">Annulée</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if reservation.active %}
-                        <form action="{{ path('mes_reservations') }}" method="post" style="margin:0;">
-                            <input type="hidden" name="reservation_id" value="{{ reservation.id }}">
-                            <button type="submit" class="cancel-btn">Annuler</button>
-                        </form>
-                    {% else %}
-                        <button class="cancel-btn" disabled>Annulée</button>
-                    {% endif %}
-                </td>
-            </tr>
-        {% else %}
-            <tr><td colspan="5">Aucune réservation trouvée.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
-
+                <form class="space-y-4 md:space-y-6" action="#">
+                    <div>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+                        <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="">
+                    </div>
+                    <div>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                        <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="remember" aria-describedby="remember" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="remember" class="text-gray-500 dark:text-gray-300">Remember me</label>
+                            </div>
+                        </div>
+                        <a href="#" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="w-full text-white bg-green-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">Se connectern</button>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                        Don’t have an account yet? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

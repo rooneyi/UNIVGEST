@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Remise des équipements{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto py-8">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Remise des équipements</h1>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300 rounded shadow">
+                <thead class="bg-gray-100 text-gray-700 text-sm">
+                <tr>
+                    <th class="border px-4 py-3 text-left">Nom de l'équipement</th>
+                    <th class="border px-4 py-3 text-left">Statut</th>
+                    <th class="border px-4 py-3 text-left">Action</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                {% for equipement in equipements %}
+                    {% if equipement.etat == 'Pris' %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="border px-4 py-2 font-medium">{{ equipement.nom }}</td>
+                        <td class="border px-4 py-2">
+                            {% set etat = equipement.etat|lower %}
+                            {% if etat == 'disponible' %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Disponible</span>
+                            {% elseif etat == 'pris' %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Pris</span>
+                            {% elseif etat == 'en maintenance' or etat == 'maintenance' %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">Maintenance</span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">{{ equipement.etat }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="border px-4 py-2">
+                            {% if etat == 'pris' %}
+                                <form method="POST" action="{{ path('remise_equipement', {id: equipement.id}) }}">
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow">
+                                        Remettre
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-gray-500 text-sm italic">Non pris</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center py-6 text-gray-500">Aucun équipement trouvé.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

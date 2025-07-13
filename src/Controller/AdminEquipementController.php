@@ -29,12 +29,11 @@ class AdminEquipementController extends AbstractController
         if ($request->isMethod('POST')) {
             $nom = $request->request->get('nom');
             $etat = $request->request->get('etat');
-            $disponible = $request->request->get('disponible') === '1';
+            $disponible = $request->request->get('disponible');
             $equipement = new Equipement();
             $equipement->setNom($nom);
             $equipement->setDescription($request->request->get('description'));
             $equipement->setEtat($etat);
-            $equipement->setDisponible($disponible);
             $equipement->setCapteurs($request->request->get('capteurs'));
             $em->persist($equipement);
             $em->flush();
@@ -52,8 +51,15 @@ class AdminEquipementController extends AbstractController
         if ($request->isMethod('POST')) {
             $equipement->setNom($request->request->get('nom'));
             $equipement->setDescription($request->request->get('description'));
-            $equipement->setEtat($request->request->get('etat'));
-            $equipement->setDisponible($request->request->get('disponible') === '1');
+            $etat = $request->request->get('etat');
+            if ($etat === null) {
+                throw new \RuntimeException('La valeur de l\'état est null. Vérifiez le formulaire HTML et la soumission.');
+            }
+            $validEtats = ['disponible', 'maintenance', 'reservé'];
+            if (!in_array($etat, $validEtats, true)) {
+                throw new \InvalidArgumentException('État invalide fourni.');
+            }
+            $equipement->setEtat($etat);
             $equipement->setCapteurs($request->request->get('capteurs'));
             $em->flush();
             return $this->redirectToRoute('admin_equipement_index');
@@ -107,42 +113,35 @@ class AdminEquipementController extends AbstractController
         ]);
     }
 
-    #[Route('/mes-maintenances', name: 'admin_equipement_mes_maintenances')]
-    public function mesMaintenances(EntityManagerInterface $em): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_MAINTENANCIER');
-        $equipements = $em->getRepository(Equipement::class)->findBy([
-            'maintenancier' => $this->getUser()
-        ]);
-        return $this->render('admin/equipement_mes_maintenances.html.twig', [
-            'equipements' => $equipements
-        ]);
-    }
 
-    #[Route('/affecter/{id}', name: 'admin_equipement_affecter')]
-    public function affecter(Equipement $equipement, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    #[Route('/sortie', name: 'admin_equipement_sortie')]
+    public function sortie(EntityManagerInterface $em, Request $request): Response
     {
-        // Récupérer tous les maintenanciers (filtrage PHP car JSON_CONTAINS n'est pas supporté en SQLite/PostgreSQL)
-        $allUsers = $userRepository->findAll();
-        $maintenanciers = array_filter($allUsers, function($user) {
-            return in_array('ROLE_MAINTENANCIER', $user->getRoles());
-        });
+        $equipementsDisponibles = $em->getRepository(Equipement::class)->findBy(['etat' => 'Disponible']);
 
         if ($request->isMethod('POST')) {
-            $maintenancierId = $request->request->get('maintenancier');
-            $maintenancier = $userRepository->find($maintenancierId);
-            if ($maintenancier) {
-                $equipement->setMaintenancier($maintenancier);
-                $em->flush();
-                $this->addFlash('success', 'Équipement affecté avec succès !');
-                return $this->redirectToRoute('admin_equipement_maintenance');
-            } else {
-                $this->addFlash('error', 'Aucun maintenancier sélectionné.');
+            $equipementIds = $request->request->all()['equipements'] ?? [];
+            if (!is_array($equipementIds)) {
+                $equipementIds = [];
             }
+            foreach ($equipementIds as $id) {
+                $equipement = $em->getRepository(Equipement::class)->find($id);
+                if ($equipement && $equipement->getEtat() !== null) {
+                    $etat = $equipement->getEtat() ?? 'Disponible'; // Utiliser une valeur par défaut si null
+                    if (!is_string($etat)) {
+                        throw new \InvalidArgumentException('La valeur de l\'état doit être une chaîne valide.');
+                    }
+                    $equipement->setEtat('Indisponible');
+                    $em->persist($equipement);
+                }
+            }
+            $em->flush();
+            $this->addFlash('success', 'La sortie des équipements a été validée avec succès.');
+            return $this->redirectToRoute('admin_equipement_sortie');
         }
-        return $this->render('admin/affecter_maintenancier.html.twig', [
-            'equipement' => $equipement,
-            'maintenanciers' => $maintenanciers
+
+        return $this->render('admin/equipement/sortie.html.twig', [
+            'equipements' => $equipementsDisponibles
         ]);
     }
 }

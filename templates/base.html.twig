@@ -3,107 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}UDBL - Gestion des Équipements{% endblock %}</title>
-        <link rel="icon" href="{{ asset('logo/udbl-logo.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('logo/udbl-logo.png') }}" class="h-4" type="image/svg+xml+png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {% block stylesheets %}
-            <style>
-                :root {
-                    --primary-blue: #2196F3;
-                    --primary-green: #43E97B;
-                    --gray-50: #f8fafc;
-                    --gray-100: #f1f5f9;
-                    --gray-900: #0f172a;
-                }
-                
-                .udbl-logo {
-                    height: 2.5rem;
-                    width: auto;
-                }
-                
-                .status-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 9999px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
-                }
-                
-                .status-available {
-                    background-color: #dcfce7;
-                    color: #166534;
-                }
-                
-                .status-reserved {
-                    background-color: #dbeafe;
-                    color: #1e40af;
-                }
-                
-                .status-unavailable {
-                    background-color: #fee2e2;
-                    color: #991b1b;
-                }
-                
-                .equipment-card {
-                    transition: all 0.2s ease-in-out;
-                    border: 1px solid #e2e8f0;
-                }
-                
-                .equipment-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
-                    border-color: var(--primary-blue);
-                }
-                
-                .btn-primary {
-                    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-green) 100%);
-                    border: none;
-                    color: white;
-                    font-weight: 600;
-                    transition: all 0.2s ease;
-                }
-                
-                .btn-primary:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
-                }
-                
-                .navbar-brand {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    font-weight: 600;
-                    color: var(--gray-900);
-                    text-decoration: none;
-                }
-                
-                .real-time-indicator {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.5rem 1rem;
-                    background: #f0f9ff;
-                    border: 1px solid #0ea5e9;
-                    border-radius: 0.5rem;
-                    font-size: 0.875rem;
-                    color: #0369a1;
-                }
-                
-                .pulse-dot {
-                    width: 8px;
-                    height: 8px;
-                    background: #22c55e;
-                    border-radius: 50%;
-                    animation: pulse 2s infinite;
-                }
-                
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                }
-            </style>
+
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         {% endblock %}
         <script src="https://cdn.tailwindcss.com"></script>
@@ -115,7 +18,6 @@
         <main class="main-content">
             {% block body %}
 
-            <!-- Le contenu sera défini dans les templates enfants -->
             {% endblock %}
         </main>
     </body>

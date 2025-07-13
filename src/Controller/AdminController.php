@@ -2,42 +2,43 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\EquipementRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin')]
-class AdminUserController extends AbstractController
+class AdminController extends AbstractController
 {
     #[Route('/dashboard', name: 'admin_dashboard')]
     #[IsGranted('ROLE_ADMIN')]
     #[IsGranted('ROLE_GESTIONNAIRE')]
-    public function dashboard(Request $request, UserRepository $userRepository, ReservationRepository $reservationRepository): Response
+    public function dashboard(Request $request,UserRepository $userRepository, EquipementRepository $equipementRepository, ReservationRepository $reservationRepository): Response
     {
-        $users = $userRepository->findAll();
-        $adminMenus = []; // À adapter selon ton menu
         $reservations = $reservationRepository->findAll();
-        $filter = null; // À adapter si besoin
+        $filter = null;
+
 
         // Notifications (exemple flash)
         if ($request->query->get('notif') === 'new') {
-            $this->addFlash('success', 'Nouvelle réservation enregistrée !');
+            $this->addFlash('success', 'Nouvelle Prise d\'un equipement enregistrée !');
         }
         if ($request->query->get('notif') === 'cancel') {
-            $this->addFlash('error', 'Une réservation a été annulée.');
+            $this->addFlash('error', 'Une Prise d\'un equipement a été annulée.');
         }
 
         return $this->render('admin/dashboard.html.twig', [
-            'users' => $users,
-            'adminMenus' => $adminMenus,
-            'reservations' => $reservations,
+            'users' => $userRepository->findAll(),
+            'prise' => $reservations,
             'filter' => $filter,
+            'equipements' => $equipementRepository->findAll(),
+
         ]);
     }
 
@@ -56,7 +57,7 @@ class AdminUserController extends AbstractController
                 $user->setPassword($hasher->hashPassword($user, $request->request->get('password')));
                 $em->persist($user);
                 $em->flush();
-                return $this->redirectToRoute('admin_user_index');
+                return $this->redirectToRoute('admin_dashboard');
             }
         }
         return $this->render('admin/user/new.html.twig', [
@@ -80,7 +81,7 @@ class AdminUserController extends AbstractController
                     $user->setPassword($hasher->hashPassword($user, $password));
                 }
                 $em->flush();
-                return $this->redirectToRoute('admin_user_index');
+                return $this->redirectToRoute('admin_dashboard');
             }
         }
         return $this->render('admin/user/edit.html.twig', [
@@ -94,6 +95,6 @@ class AdminUserController extends AbstractController
     {
         $em->remove($user);
         $em->flush();
-        return $this->redirectToRoute('admin_user_index');
+        return $this->redirectToRoute('admin_dashboard');
     }
 }

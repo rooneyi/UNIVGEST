@@ -8,135 +8,124 @@
 {% endblock %}
 
 {% block body %}
-<div class="min-h-full bg-gray-50">
-    {% include 'partials/header.html.twig' %}
-    <main>
-        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Équipements</h1>
-            <div class="mb-8 flex flex-wrap gap-4">
-                <a href="{{ path('admin_equipement_new') }}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"><i class="fa fa-plus-circle mr-2"></i>Ajouter un équipement</a>
-                <a href="{{ path('admin_equipement_maintenance') }}" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 flex items-center"><i class="fa fa-tools mr-2"></i>Voir les maintenances</a>
+    <div class="min-h-full bg-gray-50">
+        {% include 'partials/header.html.twig' %}
+
+        <main class="py-10 px-6 max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-8">Gestion des équipements</h1>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-4 mb-10">
+                <a href="{{ path('admin_equipement_new') }}"
+                   class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2.5 rounded shadow">
+                    <i class="fa fa-plus-circle"></i> Ajouter un équipement
+                </a>
+                <a href="{{ path('admin_equipement_maintenance') }}"
+                   class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2.5 rounded shadow">
+                    <i class="fa fa-tools"></i> Voir les maintenances
+                </a>
+                <a href="{{ path('reservation_index') }}"
+                   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded shadow">
+                    <i class="fa fa-file-export"></i> Sorties d’équipements
+                </a>
+                <a href="{{ path('remise_equipement_page') }}"
+                   class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2.5 rounded shadow">
+                    <i class="fa fa-undo"></i> Remise des équipements
+                </a>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-blue-700 flex items-center"><i class="fa fa-box mr-2"></i>{{ totalEquipements is defined ? totalEquipements : equipements|length }}</div>
-                    <div class="text-gray-600 mt-2">Total équipements</div>
+
+            <!-- Statistiques -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-4xl font-bold text-blue-700 mb-1">
+                        <i class="fa fa-box mr-2"></i>{{ totalEquipements ?? equipements|length }}
+                    </div>
+                    <div class="text-gray-600 text-sm">Total équipements</div>
                 </div>
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-green-700 flex items-center"><i class="fa fa-check-circle mr-2"></i>{{ totalDisponibles is defined ? totalDisponibles : equipements|filter(e => e.etat == 'Disponible' or e.etat == 'disponible')|length }}</div>
-                    <div class="text-gray-600 mt-2">Disponibles</div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-4xl font-bold text-green-700 mb-1">
+                        <i class="fa fa-check-circle mr-2"></i>{{ totalDisponibles ?? equipements|filter(e => e.etat == 'Disponible')|length }}
+                    </div>
+                    <div class="text-gray-600 text-sm">Disponibles</div>
                 </div>
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-blue-600 flex items-center"><i class="fa fa-calendar-check mr-2"></i>{{ totalReserves is defined ? totalReserves : equipements|filter(e => e.etat == 'Prendre' or e.etat == 'prendre')|length }}</div>
-                    <div class="text-gray-600 mt-2">Pris</div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-4xl font-bold text-blue-600 mb-1">
+                        <i class="fa fa-calendar-check mr-2"></i>{{ totalReserves ?? equipements|filter(e => e.etat == 'Pris')|length }}
+                    </div>
+                    <div class="text-gray-600 text-sm">Pris</div>
                 </div>
-                <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                    <div class="text-3xl font-extrabold text-orange-500 flex items-center"><i class="fa fa-wrench mr-2"></i>{{ totalMaintenance is defined ? totalMaintenance : equipements|filter(e => e.etat == 'En maintenance' or e.etat == 'maintenance' or e.etat == 'Maintenance')|length }}</div>
-                    <div class="text-gray-600 mt-2">En maintenance</div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-4xl font-bold text-orange-500 mb-1">
+                        <i class="fa fa-wrench mr-2"></i>{{ totalMaintenance ?? equipements|filter(e => e.etat matches '/Maintenance/i')|length }}
+                    </div>
+                    <div class="text-gray-600 text-sm">En maintenance</div>
                 </div>
+
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+            <!-- Listes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Disponibles -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-2 text-green-700">Équipements disponibles</h2>
+                    <h2 class="text-lg font-semibold mb-3 text-green-700">Équipements disponibles</h2>
                     <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
-                        {% set disponibles = equipements|filter(e => e.etat == 'Disponible' or e.etat == 'disponible') %}
+                        {% set disponibles = equipements|filter(e => e.etat == 'Disponible') %}
                         {% if disponibles|length > 0 %}
                             {% for eq in disponibles %}
-                                <li class="py-2 flex items-center justify-between">
-                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
-                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded">Disponible</span>
+                                <li class="py-2 flex justify-between items-center">
+                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
                                 </li>
                             {% endfor %}
                         {% else %}
-                            <li class="text-gray-500">Aucun équipement disponible.</li>
+                            <li class="py-2 text-gray-500">Aucun équipement disponible.</li>
                         {% endif %}
                     </ul>
                 </div>
+
+                <!-- Pris -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-2 text-blue-700">Équipements pris</h2>
+                    <h2 class="text-lg font-semibold mb-3 text-blue-700">Équipements pris</h2>
                     <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
-                        {% set reserves = equipements|filter(e => e.etat == 'Prendre' or e.etat == 'prendre') %}
+                        {% set reserves = equipements|filter(e => e.etat == 'Pris') %}
                         {% if reserves|length > 0 %}
                             {% for eq in reserves %}
-                                <li class="py-2 flex items-center justify-between">
-                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
-                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded">Pris</span>
+                                <li class="py-2 flex justify-between items-center">
+                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <div class="flex gap-2">
+                                        <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">Pris</span>
+                                        <form method="POST" action="{{ path('remise_equipement', {id: eq.id}) }}">
+                                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">
+                                                Remettre
+                                            </button>
+                                        </form>
+                                    </div>
                                 </li>
                             {% endfor %}
                         {% else %}
-                            <li class="text-gray-500">Aucun équipement pris.</li>
+                            <li class="py-2 text-gray-500">Aucun équipement pris.</li>
                         {% endif %}
                     </ul>
                 </div>
+
+                <!-- Maintenance -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-2 text-orange-700">Équipements en maintenance</h2>
+                    <h2 class="text-lg font-semibold mb-3 text-orange-700">Équipements en maintenance</h2>
                     <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
-                        {% set en_maintenance = equipements|filter(e => e.etat == 'En maintenance' or e.etat == 'maintenance' or e.etat == 'Maintenance') %}
+                        {% set en_maintenance = equipements|filter(e => e.etat matches '/maintenance/i') %}
                         {% if en_maintenance|length > 0 %}
                             {% for eq in en_maintenance %}
-                                <li class="py-2 flex items-center justify-between">
-                                    <span class="font-medium text-gray-800">{{ eq.nom }}</span>
-                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded">En maintenance</span>
+                                <li class="py-2 flex justify-between items-center">
+                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-1 rounded">Maintenance</span>
                                 </li>
                             {% endfor %}
                         {% else %}
-                            <li class="text-gray-500">Aucun équipement en maintenance.</li>
+                            <li class="py-2 text-gray-500">Aucun équipement en maintenance.</li>
                         {% endif %}
                     </ul>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow p-4 mb-6">
-                <div class="font-semibold mb-2">Rechercher et Filtrer</div>
-                <form method="get" class="flex flex-wrap gap-4 items-center">
-                    <input type="text" name="q" placeholder="Rechercher par nom ou ID..." value="{{ app.request.get('q') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-64 pl-3 p-2.5">
-                    <button type="submit" name="cat" value="" class="px-3 py-1 rounded border border-gray-300 bg-gray-100 text-gray-700 hover:bg-blue-100 {% if app.request.get('cat') is empty %}font-bold bg-blue-100{% endif %}">Tous</button>
-                    {% set cats = categories is defined ? categories : [] %}
-                    {% if cats is empty %}
-                        {% set _cats = [] %}
-                        {% for e in equipements %}
-                            {% if e.capteurs is defined and e.capteurs not in _cats %}
-                                {% set _cats = _cats|merge([e.capteurs]) %}
-                            {% endif %}
-                        {% endfor %}
-                        {% set cats = _cats|sort %}
-                    {% endif %}
-                    {% for cat in cats %}
-                        <button type="submit" name="cat" value="{{ cat }}" class="px-3 py-1 rounded border border-gray-300 bg-gray-100 text-gray-700 hover:bg-blue-100 {% if app.request.get('cat') == cat %}font-bold bg-blue-100{% endif %}">{{ cat }}</button>
-                    {% endfor %}
-                </form>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="text-lg font-semibold mb-2">Liste des Équipements</div>
-                <div class="text-gray-500 mb-4">{{ equipements|length }} équipement(s) trouvé(s)</div>
-                {% if equipements|length > 0 %}
-                    {% for equipment in equipements %}
-                        <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
-                            <div>
-                                <div class="font-semibold text-gray-900">{{ equipment.nom }}</div>
-                                <div class="text-gray-500 text-sm mb-1">
-                                    <strong>ID:</strong> {{ equipment.id }} | <strong>Catégorie:</strong> {{ equipment.capteurs }}
-                                </div>
-                                <div class="text-gray-500 text-sm">
-                                    <strong>Description:</strong> {{ equipment.description|default('-') }}
-                                </div>
-                                <span class="inline-block mt-2 px-2 py-1 rounded text-xs font-semibold
-                                    {% if equipment.etat == 'disponible' %}bg-green-100 text-green-700
-                                    {% elseif equipment.etat == 'prendre' %}bg-blue-100 text-blue-700
-                                    {% elseif equipment.etat == 'maintenance' %}bg-orange-100 text-orange-700
-                                    {% else %}bg-gray-200 text-gray-700{% endif %}">
-                                    {{ equipment.etat|capitalize }}
-                                </span>
-                            </div>
-                            <div>
-                                <a href="{{ path('admin_equipement_edit', {id: equipment.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Modifier</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center text-gray-400 py-8">Aucun équipement trouvé.</div>
-                {% endif %}
-            </div>
-        </div>
-    </main>
-</div>
+        </main>
+    </div>
 {% endblock %}

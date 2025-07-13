@@ -5,6 +5,10 @@
   <div class="flex-1 w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 mt-24">
     <h1 class="text-3xl font-bold mb-8">Équipements en maintenance</h1>
 
+    {% set totalDisponibles = equipementsAll|filter(e => e.etat == 'Disponible')|length %}
+    {% set totalReserves = equipementsAll|filter(e => e.etat == 'Pris')|length %}
+    {% set totalMaintenance = equipementsAll|filter(e => e.etat == 'Maintenance')|length %}
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
             <div class="text-3xl font-extrabold text-blue-700 flex items-center"><i class="fa fa-box mr-2"></i>{{ totalEquipements is defined ? totalEquipements : equipementsAll|length }}</div>
