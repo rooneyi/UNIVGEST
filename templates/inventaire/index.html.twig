@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inventaire des Équipements{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Inventaire des Équipements</h1>
+
+        <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Nom</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Description</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">État</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                {% for equipement in equipements %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ equipement.id }}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ equipement.nom }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            {{ equipement.description is not empty ? equipement.description : '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% set etat = equipement.etat|lower %}
+                            {% if etat == 'disponible' %}
+                                <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded">Disponible</span>
+                            {% elseif etat == 'pris' %}
+                                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded">Pris</span>
+                            {% elseif 'maintenance' in etat %}
+                                <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded">En maintenance</span>
+                            {% else %}
+                                <span class="inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded">Inconnu</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun équipement trouvé.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

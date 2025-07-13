@@ -10,18 +10,19 @@
                     <h2 class="text-base/7 font-semibold text-gray-900 text-center">Modifier un Utilisateur</h2>
                     <div class="mt-10 flex flex-col items-center justify-center">
                         <div class="w-full max-w-md">
-                            <form action="{{ path('admin_user_new') }}" method="post">
+                            <form action="{{ path('admin_user_edit', {'id': user.id}) }}" method="post">
                                 <div class="mb-6">
                                     <label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
                                     <div class="mt-2">
                                         <input id="email" name="email" type="email" required placeholder="prenom.nom@esisalama.org"
+                                               value="{{ user.email }}"
                                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
                                     </div>
                                 </div>
                                 <div class="mb-6">
                                     <label for="password" class="block text-sm/6 font-medium text-gray-900">Mot de passe</label>
                                     <div class="mt-2">
-                                        <input id="password" name="password" type="password" required placeholder="Mot de passe"
+                                        <input id="password" name="password" type="password" placeholder="Laisser vide pour ne pas changer"
                                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
                                     </div>
                                 </div>
@@ -30,11 +31,11 @@
                                     <div class="mt-2">
                                         <select id="role" name="role" required
                                                 class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6">
-                                            <option value="ROLE_GESTIONNAIRE">GESTIONNAIRE</option>
+                                            <option value="ROLE_GESTIONNAIRE" {% if 'ROLE_GESTIONNAIRE' in user.roles %}selected{% endif %}>GESTIONNAIRE</option>
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer</button>
+                                <button type="submit" class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Modifier</button>
                             </form>
                         </div>
                     </div>

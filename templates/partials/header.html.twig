@@ -13,13 +13,19 @@
                 <a href="{{ path('app_home') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                     <i class="fas fa-home mr-2"></i>Accueil
                 </a>
-                {% if is_granted("ROLE_ADMIN") and is_granted("ROLE_GESTIONNAIRE") %}
+                {% if is_granted("ROLE_GESTIONNAIRE") %}
                     <a href="{{ path('admin_dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Tableau de bord</a>
                     <a href="{{ path('admin_equipement_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                         <i class="fas fa-laptop mr-2"></i>Équipements
                     </a>
                     <a href="{{ path('reservation_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                         <i class="fas fa-calendar-check mr-2"></i>Prise
+                    </a>
+                    <a href="{{ path('app_inventaire_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-calendar-check mr-2"></i>Inventaire
+                    </a>
+                    <a href="{{ path('app_rapport_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-calendar-check mr-2"></i>Rapport
                     </a>
                 {% endif %}
                 {% if app.user %}

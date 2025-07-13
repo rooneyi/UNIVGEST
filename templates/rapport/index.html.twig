@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rapport des Équipements{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex justify-between items-center mb-6 no-print">
+            <h1 class="text-3xl font-bold text-gray-800">Rapport des équipements</h1>
+            <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Imprimer</button>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-10">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-600">Liste des équipements</h2>
+            <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th class="border px-3 py-2 text-left">ID</th>
+                    <th class="border px-3 py-2 text-left">Nom</th>
+                    <th class="border px-3 py-2 text-left">État</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for eq in equipements %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="border px-3 py-2">{{ eq.id }}</td>
+                        <td class="border px-3 py-2">{{ eq.nom }}</td>
+                        <td class="border px-3 py-2">
+                            {% if eq.etat == "Disponible" %}
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Oui</span>
+                            {% else %}
+                                <span class="inline-block px-2 py-1 bg-red-100 text-red-800 text-xs rounded">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-center text-gray-500 py-4">Aucun équipement trouvé.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-10">
+            <h2 class="text-xl font-semibold mb-4 text-orange-600">Maintenances planifiées</h2>
+            <ul class="space-y-2 text-sm">
+                {% for eq in equipements %}
+                    {% if eq.etat|lower matches '/maintenance/' %}
+                        <li class="border p-3 rounded bg-orange-50 text-orange-800 font-medium">
+                            {{ eq.nom }} — En maintenance
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="text-gray-500">Aucune maintenance planifiée.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">Historique d'utilisation</h2>
+            <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th class="border px-3 py-2">Équipement</th>
+                    <th class="border px-3 py-2">Utilisateur</th>
+                    <th class="border px-3 py-2">Date de réservation</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for res in reservations %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="border px-3 py-2">{{ res.equipement.nom }}</td>
+                        <td class="border px-3 py-2">{{ res.user.email }}</td>
+                        <td class="border px-3 py-2">{{ res.dateReservation|date('d/m/Y H:i') }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="3" class="text-center text-gray-500 py-4">Aucune réservation enregistrée.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

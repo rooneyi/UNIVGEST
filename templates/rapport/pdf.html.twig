@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #aaa; padding: 6px; text-align: left; }
+        th { background: #eee; }
+        h1 { text-align: center; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+<h1>Rapport des Équipements</h1>
+
+<h2>Liste des équipements</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>État</th>
+        <th>Disponible</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for eq in equipements %}
+        <tr>
+            <td>{{ eq.id }}</td>
+            <td>{{ eq.nom }}</td>
+            <td>{{ eq.etat }}</td>
+            <td>{{ eq.disponible ? 'Oui' : 'Non' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>Historique d’utilisation</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Équipement</th>
+        <th>Utilisateur</th>
+        <th>Date de réservation</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for res in reservations %}
+        <tr>
+            <td>{{ res.equipement.nom }}</td>
+            <td>{{ res.user.email }}</td>
+            <td>{{ res.dateReservation|date('d/m/Y H:i') }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

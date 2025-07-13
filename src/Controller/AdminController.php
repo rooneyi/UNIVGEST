@@ -5,6 +5,7 @@ use App\Entity\User;
 use App\Repository\EquipementRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\UserRepository;
+use Cassandra\Type\UserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,14 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/users', name: 'admin_user_index')]
+    public function userIndex(UserRepository $userRepository): Response
+    {
+        $users = $userRepository->findAll();
+        return $this->render('admin/user/index.html.twig', [
+            'users' => $users
+        ]);
+    }
     #[Route('/new', name: 'admin_user_new')]
     public function new(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
     {
@@ -81,7 +90,8 @@ class AdminController extends AbstractController
                     $user->setPassword($hasher->hashPassword($user, $password));
                 }
                 $em->flush();
-                return $this->redirectToRoute('admin_dashboard');
+                $this->addFlash('success', 'Utilisateur modifié avec succès !');
+                return $this->redirectToRoute('admin_user_index');
             }
         }
         return $this->render('admin/user/edit.html.twig', [
