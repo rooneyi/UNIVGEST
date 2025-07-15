@@ -11,7 +11,7 @@ class Reservation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private  $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -48,6 +48,9 @@ class Reservation
     #[ORM\Column(type: 'string', length: 30, nullable: true)]
     private ?string $telephone;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private $dateRemise;
+
     public function getId(): ?int { return $this->id; }
     public function getUser(): ?User { return $this->user; }
     public function setUser(User $user): self { $this->user = $user; return $this; }
@@ -71,4 +74,13 @@ class Reservation
     public function setFiliere(?string $filiere): self { $this->filiere = $filiere; return $this; }
     public function getTelephone(): ?string { return $this->telephone; }
     public function setTelephone(?string $telephone): self { $this->telephone = $telephone; return $this; }
+    public function getDateRemise(): ?\DateTimeInterface
+    {
+        return $this->dateRemise;
+    }
+    public function setDateRemise(?\DateTimeInterface $dateRemise): self
+    {
+        $this->dateRemise = $dateRemise;
+        return $this;
+    }
 }

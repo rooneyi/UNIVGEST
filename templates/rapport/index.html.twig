@@ -25,6 +25,7 @@
                     <th class="border px-3 py-2 text-left">ID</th>
                     <th class="border px-3 py-2 text-left">Nom</th>
                     <th class="border px-3 py-2 text-left">État</th>
+                    <th class="border px-3 py-2 text-left">Remis ?</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -34,14 +35,27 @@
                         <td class="border px-3 py-2">{{ eq.nom }}</td>
                         <td class="border px-3 py-2">
                             {% if eq.etat == "Disponible" %}
-                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Oui</span>
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Disponible</span>
+                            {% elseif eq.etat|lower matches '/maintenance/' %}
+                                <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">En maintenance</span>
+                            {% elseif eq.etat == "Pris" %}
+                                <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Pris</span>
+                            {% elseif eq.etat|lower == 'déclassé' or eq.etat|lower == 'declasser' %}
+                                <span class="inline-block px-2 py-1 bg-red-100 text-red-700 text-xs rounded font-semibold">Déclassé</span>
                             {% else %}
-                                <span class="inline-block px-2 py-1 bg-red-100 text-red-800 text-xs rounded">Non</span>
+                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ eq.etat }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="border px-3 py-2">
+                            {% if eq.etat == "Disponible" %}
+                                <span class="inline-block px-2 py-1 bg-green-50 text-green-700 text-xs rounded">Oui</span>
+                            {% else %}
+                                <span class="inline-block px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded">Non</span>
                             {% endif %}
                         </td>
                     </tr>
                 {% else %}
-                    <tr><td colspan="4" class="text-center text-gray-500 py-4">Aucun équipement trouvé.</td></tr>
+                    <tr><td colspan="5" class="text-center text-gray-500 py-4">Aucun équipement trouvé.</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
@@ -68,19 +82,39 @@
                 <thead class="bg-gray-100">
                 <tr>
                     <th class="border px-3 py-2">Équipement</th>
-                    <th class="border px-3 py-2">Utilisateur</th>
+                    <th class="border px-3 py-2">Nom</th>
+                    <th class="border px-3 py-2">Promotion</th>
+                    <th class="border px-3 py-2">Filière</th>
                     <th class="border px-3 py-2">Date de réservation</th>
+                    <th class="border px-3 py-2">Remis ?</th>
+                    <th class="border px-3 py-2">Date de remise</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for res in reservations %}
                     <tr class="hover:bg-gray-50">
                         <td class="border px-3 py-2">{{ res.equipement.nom }}</td>
-                        <td class="border px-3 py-2">{{ res.user.email }}</td>
+                        <td class="border px-3 py-2">{{ res.nomPersonne }} {{ res.postnomPersonne }} {{ res.prenomPersonne }}</td>
+                        <td class="border px-3 py-2">{{ res.promotion }}</td>
+                        <td class="border px-3 py-2">{{ res.filiere }}</td>
                         <td class="border px-3 py-2">{{ res.dateReservation|date('d/m/Y H:i') }}</td>
+                        <td class="border px-3 py-2">
+                            {% if res.equipement.etat == "Disponible" %}
+                                <span class="inline-block px-2 py-1 bg-green-50 text-green-700 text-xs rounded">Oui</span>
+                            {% else %}
+                                <span class="inline-block px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded">Non</span>
+                            {% endif %}
+                        </td>
+                        <td class="border px-3 py-2">
+                            {% if res.dateRemise %}
+                                {{ res.dateRemise|date('d/m/Y H:i') }}
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% else %}
-                    <tr><td colspan="3" class="text-center text-gray-500 py-4">Aucune réservation enregistrée.</td></tr>
+                    <tr><td colspan="7" class="text-center text-gray-500 py-4">Aucune réservation trouvée.</td></tr>
                 {% endfor %}
                 </tbody>
             </table>

@@ -161,9 +161,19 @@ class PriseEquipement extends AbstractController
 
         if ($equipement && $equipement->getEtat() === 'Pris') {
             $equipement->setEtat('Disponible');
+            // Chercher la réservation active liée à cet équipement
+            $reservation = $entityManager->getRepository(Reservation::class)->findOneBy([
+                'equipement' => $equipement,
+                'active' => true
+            ]);
+            if ($reservation) {
+                $reservation->setDateRemise(new \DateTime());
+                $reservation->setActive(false);
+                $entityManager->persist($reservation);
+            }
             $entityManager->flush();
         }
 
-        return new RedirectResponse($this->generateUrl('admin_equipement_dashboard'));
+        return new RedirectResponse($this->generateUrl('admin_dashboard'));
     }
 }

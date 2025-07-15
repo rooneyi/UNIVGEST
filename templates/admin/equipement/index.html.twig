@@ -9,7 +9,6 @@
 
 {% block body %}
     <div class="min-h-full bg-gray-50">
-        {% include 'partials/header.html.twig' %}
 
         <main class="py-10 px-6 max-w-7xl mx-auto">
             <h1 class="text-4xl font-bold text-gray-800 mb-8">Gestion des équipements</h1>
@@ -74,7 +73,12 @@
                             {% for eq in disponibles %}
                                 <li class="py-2 flex justify-between items-center">
                                     <span class="text-gray-800">{{ eq.nom }}</span>
-                                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
+                                    <div class="flex gap-2">
+                                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
+                                        <form method="POST" action="{{ path('admin_equipement_declasser', {id: eq.id}) }}" onsubmit="return confirm('Voulez-vous vraiment déclasser cet équipement ?');">
+                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
+                                        </form>
+                                    </div>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -122,6 +126,24 @@
                             {% endfor %}
                         {% else %}
                             <li class="py-2 text-gray-500">Aucun équipement en maintenance.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Déclassés -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-3 text-red-700">Équipements déclassés</h2>
+                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                        {% set declasses = equipements|filter(e => e.etat|lower == 'déclassé' or e.etat|lower == 'declasser') %}
+                        {% if declasses|length > 0 %}
+                            {% for eq in declasses %}
+                                <li class="py-2 flex justify-between items-center">
+                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded">Déclassé</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="py-2 text-gray-500">Aucun équipement déclassé.</li>
                         {% endif %}
                     </ul>
                 </div>

@@ -144,4 +144,13 @@ class AdminEquipementController extends AbstractController
             'equipements' => $equipementsDisponibles
         ]);
     }
+
+    #[Route('/declasser/{id}', name: 'admin_equipement_declasser', methods: ['POST'])]
+    public function declasser(Equipement $equipement, EntityManagerInterface $em): Response
+    {
+        $equipement->setEtat('Déclassé');
+        $em->flush();
+        $this->addFlash('success', 'Équipement déclassé avec succès.');
+        return $this->redirectToRoute('admin_equipement_index');
+    }
 }

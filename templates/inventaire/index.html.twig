@@ -27,13 +27,15 @@
                         <td class="px-6 py-4">
                             {% set etat = equipement.etat|lower %}
                             {% if etat == 'disponible' %}
-                                <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded">Disponible</span>
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Disponible</span>
+                            {% elseif etat == 'maintenance' %}
+                                <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">En maintenance</span>
                             {% elseif etat == 'pris' %}
-                                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded">Pris</span>
-                            {% elseif 'maintenance' in etat %}
-                                <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded">En maintenance</span>
+                                <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Pris</span>
+                            {% elseif etat == 'déclassé' or etat == 'declasser' %}
+                                <span class="inline-block px-2 py-1 bg-red-100 text-red-700 text-xs rounded font-semibold">Déclassé</span>
                             {% else %}
-                                <span class="inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded">Inconnu</span>
+                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ equipement.etat }}</span>
                             {% endif %}
                         </td>
                     </tr>
