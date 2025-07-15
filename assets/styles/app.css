@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Style général pour fond bleu/vert/blanc et formulaire centré */
 body {
     min-height: 100vh;

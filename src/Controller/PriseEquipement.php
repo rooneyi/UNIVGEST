@@ -34,7 +34,7 @@ class PriseEquipement extends AbstractController
         // Enregistrement d’une réservation (prise de matériel)
         if (
             $request->isMethod('POST')
-            && $request->request->get('equipement_id')
+            && $request->request->has('equipement_ids')
         ) {
             $nom = $request->request->get('nom');
             $postnom = $request->request->get('postnom');
@@ -54,35 +54,45 @@ class PriseEquipement extends AbstractController
                 throw new \InvalidArgumentException('Le champ filière est requis pour les promotions autres que L1 et L2.');
             }
 
-            $equipement = $equipementRepository->find($request->request->get('equipement_id'));
-            if ($equipement) {
-                $equipement->setEtat(Equipement::ETAT_PRIS);
-                $reservation = new Reservation();
-                $reservation->setNomPersonne($nom);
-                $reservation->setPostnomPersonne($postnom);
-                $reservation->setPrenomPersonne($prenom);
-                $reservation->setPromotion($promotion);
-                $reservation->setFiliere($filiere);
-                $reservation->setEmailPersonne($email);
-                $reservation->setTelephone($telephone);
-                $reservation->setEquipement($equipement);
-                $reservation->setDateReservation(new \DateTime());
-                $reservation->setActive(true);
-
-                if ($user instanceof \App\Entity\User) {
-                    $reservation->setUser($user);
-                } else {
-                    throw new \LogicException('Utilisateur non valide.');
-                }
-
-                $reservationRepository->getEntityManager()->persist($reservation);
-                $reservationRepository->getEntityManager()->flush();
-
-                $this->addFlash('success', 'Matériel pris avec succès par ' . $prenom . ' ' . $nom . ' !');
+            $equipementIds = $request->request->all('equipement_ids');
+            if (!is_array($equipementIds) || count($equipementIds) === 0) {
+                $this->addFlash('error', 'Veuillez sélectionner au moins un équipement disponible.');
                 return $this->redirectToRoute('reservation_index');
-            } else {
-                $this->addFlash('error', "Cet équipement n'est plus disponible.");
             }
+            $success = [];
+            $errors = [];
+            foreach ($equipementIds as $equipementId) {
+                $equipement = $equipementRepository->find($equipementId);
+                if ($equipement && $equipement->getEtat() === Equipement::ETAT_DISPONIBLE) {
+                    $equipement->setEtat(Equipement::ETAT_PRIS);
+                    $reservation = new Reservation();
+                    $reservation->setNomPersonne($nom);
+                    $reservation->setPostnomPersonne($postnom);
+                    $reservation->setPrenomPersonne($prenom);
+                    $reservation->setPromotion($promotion);
+                    $reservation->setFiliere($filiere);
+                    $reservation->setEmailPersonne($email);
+                    $reservation->setTelephone($telephone);
+                    $reservation->setEquipement($equipement);
+                    $reservation->setDateReservation(new \DateTime());
+                    $reservation->setActive(true);
+                    if ($user instanceof \App\Entity\User) {
+                        $reservation->setUser($user);
+                    }
+                    $reservationRepository->getEntityManager()->persist($reservation);
+                    $success[] = $equipement->getNom();
+                } else {
+                    $errors[] = $equipement ? $equipement->getNom() : 'Inconnu';
+                }
+            }
+            $reservationRepository->getEntityManager()->flush();
+            if ($success) {
+                $this->addFlash('success', 'Matériel pris avec succès : ' . implode(', ', $success));
+            }
+            if ($errors) {
+                $this->addFlash('error', 'Certains équipements ne sont pas disponibles : ' . implode(', ', $errors));
+            }
+            return $this->redirectToRoute('reservation_index');
         }
 
         return $this->render('reservation/index.html.twig', [
@@ -108,7 +118,6 @@ class PriseEquipement extends AbstractController
             if ($reservation && $reservation->getUser() === $user && $reservation->isActive()) {
                 $reservation->setActive(false);
                 $equipement = $reservation->getEquipement();
-                $equipement->setDisponible(true);
                 $equipement->setEtat(Equipement::ETAT_DISPONIBLE);
                 $em->flush();
 

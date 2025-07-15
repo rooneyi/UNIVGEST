@@ -19,8 +19,8 @@ class RegisterController extends AbstractController
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
             $password = $request->request->get('password');
-            if (!preg_match('/^[^@]+@esisalama\.org$/', $email)) {
-                $error = "L'adresse email doit se terminer par @esisalama.org";
+            if (!preg_match('/^[^@]+@udbl.ac\.cd$/', $email)) {
+                $error = "L'adresse email doit se terminer par @udbl.ac.cd";
             } elseif (strlen($password) < 6) {
                 $error = "Le mot de passe doit contenir au moins 6 caractères.";
             } elseif ($em->getRepository(User::class)->findOneBy(['email' => $email])) {
