@@ -31,6 +31,20 @@ class PriseEquipement extends AbstractController
             $reservationsActives[$equipement->getId()] = $equipementRepository->findActiveReservation($equipement);
         }
 
+        // Vérification des réservations non remises dont la date de remise prévue est dépassée
+        $now = new \DateTime();
+        $reservationsNonRemises = $reservationRepository->createQueryBuilder('r')
+            ->where('r.active = true')
+            ->andWhere('r.dateRemisePrevue IS NOT NULL')
+            ->andWhere('r.dateRemisePrevue < :now')
+            ->setParameter('now', $now)
+            ->getQuery()->getResult();
+        if ($reservationsNonRemises) {
+            foreach ($reservationsNonRemises as $res) {
+                $this->addFlash('error', 'Attention : L\'équipement "' . $res->getEquipement()->getNom() . '" n\'a pas été remis dans le délai de 24h !');
+            }
+        }
+
         // Enregistrement d’une réservation (prise de matériel)
         if (
             $request->isMethod('POST')
@@ -75,6 +89,8 @@ class PriseEquipement extends AbstractController
                     $reservation->setTelephone($telephone);
                     $reservation->setEquipement($equipement);
                     $reservation->setDateReservation(new \DateTime());
+                    $dateRemisePrevue = (new \DateTime())->modify('+24 hours');
+                    $reservation->setDateRemisePrevue($dateRemisePrevue);
                     $reservation->setActive(true);
                     if ($user instanceof \App\Entity\User) {
                         $reservation->setUser($user);
@@ -155,10 +171,14 @@ class PriseEquipement extends AbstractController
      * @Route("/remise-equipement/{id}", name="remise_equipement", methods={"POST"})
      */
     #[Route('/remise-equipement/{id}', name: 'remise_equipement', methods: ['POST'])]
-    public function remiseEquipement($id, EntityManagerInterface $entityManager)
+    public function remiseEquipement($id, EntityManagerInterface $entityManager, Request $request)
     {
+        $email = $request->request->get('email');
+        if ($email && !preg_match('/^[^@]+@udbl\.ac\.cd$/', $email)) {
+            $this->addFlash('error', "L'adresse email doit se terminer par @udbl.ac.cd");
+            return new RedirectResponse($this->generateUrl('admin_dashboard'));
+        }
         $equipement = $entityManager->getRepository(Equipement::class)->find($id);
-
         if ($equipement && $equipement->getEtat() === 'Pris') {
             $equipement->setEtat('Disponible');
             // Chercher la réservation active liée à cet équipement
@@ -173,7 +193,6 @@ class PriseEquipement extends AbstractController
             }
             $entityManager->flush();
         }
-
         return new RedirectResponse($this->generateUrl('admin_dashboard'));
     }
 }

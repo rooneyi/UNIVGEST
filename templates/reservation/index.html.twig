@@ -51,6 +51,8 @@ body {
         {% endfor %}
       {% endfor %}
       <div class="overflow-x-auto rounded-lg shadow mt-6">
+        <h2 class="text-xl font-bold mb-4 text-green-700">Suivi des équipements en temps réel</h2>
+        <div id="realtime-equipements" class="mb-8"></div>
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
@@ -61,6 +63,7 @@ body {
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             {% for equipement in equipements %}
+            {% if equipement.etat != 'Déclassé' %}
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-equipement-id="{{ equipement.id }}">
                 <div class="flex items-center space-x-3">
@@ -86,6 +89,7 @@ body {
                 {% endif %}
               </td>
             </tr>
+            {% endif %}
             {% else %}
             <tr>
               <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Aucun équipement disponible.</td>
@@ -110,7 +114,7 @@ body {
             <input type="hidden" name="date_prise" value="{{ "now"|date('Y-m-d H:i:s') }}">
             <div class="max-h-60 overflow-y-auto">
               {% for equipement in equipements %}
-                {% if equipement.etat == 'Disponible' %}
+                {% if equipement.etat == 'Disponible' and equipement.etat != 'Déclassé' %}
                   <div class="flex items-center justify-between p-2 border-b">
                     <div class="flex items-center space-x-3">
                       <input type="checkbox" name="equipement_ids[]" value="{{ equipement.id }}" id="equipement-{{ equipement.id }}" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
@@ -196,5 +200,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, 3500);
 });
+// Fonction pour charger le suivi en temps réel
+function loadRealtimeEquipements() {
+  fetch('/api/equipements/realtime')
+    .then(response => response.json())
+    .then(data => {
+      let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+      data.forEach(eq => {
+        html += `<div class=\"border rounded p-4 bg-white shadow\">
+          <div class=\"font-bold text-lg text-gray-900\">${eq.nom}</div>
+          <div class=\"mb-2 text-sm text-gray-600\">Etat : <span class=\"font-semibold\">${eq.etat}</span></div>
+        </div>`;
+      });
+      html += '</div>';
+      document.getElementById('realtime-equipements').innerHTML = html;
+    });
+}
+loadRealtimeEquipements();
+setInterval(loadRealtimeEquipements, 10000);
 </script>
 {% endblock %}

@@ -44,29 +44,38 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users', name: 'admin_user_index')]
+    #[IsGranted('ROLE_ADMIN')]
     public function userIndex(UserRepository $userRepository): Response
     {
-        $users = $userRepository->findAll();
+        $users = $userRepository->findBy(["roles" => ["ROLE_GESTIONNAIRE"]]);
         return $this->render('admin/user/index.html.twig', [
             'users' => $users
         ]);
     }
-    #[Route('/new', name: 'admin_user_new')]
-    public function new(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
+
+    #[Route('/user/new', name: 'admin_user_new')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function userNew(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
     {
         $error = null;
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
-            if (!preg_match('/^[^@]+@esisalama\.org$/', $email)) {
-                $error = "L'adresse email doit se terminer par @esisalama.org";
+            $password = $request->request->get('password');
+            if (!preg_match('/^[^@]+@udbl.ac\.cd$/', $email)) {
+                $error = "L'adresse email doit se terminer par @udbl.ac.cd";
+            } elseif (strlen($password) < 6) {
+                $error = "Le mot de passe doit contenir au moins 6 caractères.";
+            } elseif ($em->getRepository(User::class)->findOneBy(['email' => $email])) {
+                $error = "Un compte existe déjà avec cette adresse email.";
             } else {
                 $user = new User();
                 $user->setEmail($email);
-                $user->setRoles([$request->request->get('role')]);
-                $user->setPassword($hasher->hashPassword($user, $request->request->get('password')));
+                $user->setRoles(['ROLE_GESTIONNAIRE']);
+                $user->setPassword($hasher->hashPassword($user, $password));
                 $em->persist($user);
                 $em->flush();
-                return $this->redirectToRoute('admin_dashboard');
+                $this->addFlash('success', 'Gestionnaire créé avec succès.');
+                return $this->redirectToRoute('admin_user_index');
             }
         }
         return $this->render('admin/user/new.html.twig', [
@@ -74,31 +83,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/edit/{id}', name: 'admin_user_edit')]
-    public function edit(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
-    {
-        $error = null;
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            if (!preg_match('/^[^@]+@esisalama\.org$/', $email)) {
-                $error = "L'adresse email doit se terminer par @esisalama.org";
-            } else {
-                $user->setEmail($email);
-                $user->setRoles([$request->request->get('role')]);
-                $password = $request->request->get('password');
-                if ($password) {
-                    $user->setPassword($hasher->hashPassword($user, $password));
-                }
-                $em->flush();
-                $this->addFlash('success', 'Utilisateur modifié avec succès !');
-                return $this->redirectToRoute('admin_user_index');
-            }
-        }
-        return $this->render('admin/user/edit.html.twig', [
-            'user' => $user,
-            'error' => $error
-        ]);
-    }
 
     #[Route('/delete/{id}', name: 'admin_user_delete')]
     public function delete(User $user, EntityManagerInterface $em): Response

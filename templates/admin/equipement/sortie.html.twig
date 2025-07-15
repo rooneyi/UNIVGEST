@@ -37,6 +37,7 @@
                     <div class="text-gray-500 mb-4">{{ equipements|length }} équipement(s) trouvé(s)</div>
                     {% if equipements|length > 0 %}
                         {% for equipment in equipements %}
+                            {% if equipment.etat != 'Déclassés' %}
                             <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
                                 <div>
                                     <div class="font-semibold text-gray-900">{{ equipment.nom }}</div>
@@ -59,6 +60,7 @@
                                     <input type="checkbox" name="equipements[]" value="{{ equipment.id }}" class="ml-4">
                                 </div>
                             </div>
+                            {% endif %}
                         {% endfor %}
                     {% else %}
                         <div class="text-center text-gray-400 py-8">Aucun équipement trouvé.</div>

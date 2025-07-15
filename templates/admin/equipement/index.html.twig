@@ -148,6 +148,60 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Suivi des équipements en temps réel -->
+            <div class="mb-12">
+                <h2 class="text-xl font-bold mb-4 text-green-700">Suivi des équipements en temps réel</h2>
+                <div id="realtime-equipements-admin" class="mb-8"></div>
+            </div>
         </main>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function loadRealtimeEquipementsAdmin() {
+  fetch('/api/equipements/realtime')
+    .then(response => response.json())
+    .then(data => {
+      let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+      data.forEach(eq => {
+        let alert = '';
+        let needMaintenance = false;
+        if ((eq.usage_hours ?? 0) > 100) {
+          alert += '<div class="bg-red-100 text-red-700 p-2 rounded mb-2 font-bold">Alerte : Utilisation élevée (>100h)</div>';
+          needMaintenance = true;
+        }
+        if ((eq.sensor_data.temperature ?? 0) > 60) {
+          alert += '<div class="bg-orange-100 text-orange-700 p-2 rounded mb-2 font-bold">Alerte : Température élevée (>60°C)</div>';
+          needMaintenance = true;
+        }
+        html += `<div class=\"border rounded p-4 bg-white shadow\">
+          ${alert}
+          <div class=\"font-bold text-lg text-gray-900\">${eq.nom}</div>
+          <div class=\"mb-2 text-sm text-gray-600\">Etat : <span class=\"font-semibold\">${eq.etat}</span></div>
+          <div class=\"mb-2 text-sm text-gray-600\">Dernière mise à jour : ${eq.last_update || '-'} </div>
+          <div class=\"mb-2 text-sm text-gray-600\">Capteurs :
+            <ul class=\"ml-2\">
+              <li>Température : ${eq.sensor_data.temperature ?? '-'}</li>
+              <li>Présence : ${eq.sensor_data.presence ?? '-'}</li>
+              <li>Poids : ${eq.sensor_data.weight ?? '-'}</li>
+              <li>Distance : ${eq.sensor_data.distance ?? '-'}</li>
+            </ul>
+          </div>
+          <div class=\"mb-2 text-sm text-gray-600\">Heures d'utilisation : <span class=\"font-semibold\">${eq.usage_hours ?? '0'}</span></div>
+          <div class=\"w-full h-2 bg-gray-200 rounded\">
+            <div class=\"h-2 rounded bg-green-500\" style=\"width: ${Math.min(eq.usage_hours/100,1)*100}%\"></div>
+          </div>
+          ${needMaintenance ? '<button class=\"mt-4 px-4 py-2 bg-orange-600 text-white rounded\">Planifier maintenance</button>' : ''}
+        </div>`;
+      });
+      html += '</div>';
+      document.getElementById('realtime-equipements-admin').innerHTML = html;
+    });
+}
+loadRealtimeEquipementsAdmin();
+setInterval(loadRealtimeEquipementsAdmin, 10000);
+</script>
 {% endblock %}
