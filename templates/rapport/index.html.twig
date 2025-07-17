@@ -23,6 +23,7 @@
                 <thead class="bg-gray-100">
                 <tr>
                     <th class="border px-3 py-2 text-left">ID</th>
+                    <th class="border px-3 py-2 text-left">Code</th>
                     <th class="border px-3 py-2 text-left">Nom</th>
                     <th class="border px-3 py-2 text-left">État</th>
                     <th class="border px-3 py-2 text-left">Remis ?</th>
@@ -32,6 +33,7 @@
                 {% for eq in equipements %}
                     <tr class="hover:bg-gray-50">
                         <td class="border px-3 py-2">{{ eq.id }}</td>
+                        <td class="border px-3 py-2">{{ eq.code }}</td>
                         <td class="border px-3 py-2">{{ eq.nom }}</td>
                         <td class="border px-3 py-2">
                             {% if eq.etat == "Disponible" %}

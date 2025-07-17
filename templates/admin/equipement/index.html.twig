@@ -72,7 +72,9 @@
                         {% if disponibles|length > 0 %}
                             {% for eq in disponibles %}
                                 <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
+                                    <span id="etat-equipement-{{ eq.id }}" class="ml-2 text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{{ eq.etat }}</span>
+                                    <span id="presence-equipement-{{ eq.id }}" class="ml-2 text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
                                     <div class="flex gap-2">
                                         <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
                                         <form method="POST" action="{{ path('admin_equipement_declasser', {id: eq.id}) }}" onsubmit="return confirm('Voulez-vous vraiment déclasser cet équipement ?');">
@@ -95,7 +97,7 @@
                         {% if reserves|length > 0 %}
                             {% for eq in reserves %}
                                 <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
                                     <div class="flex gap-2">
                                         <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">Pris</span>
                                         <form method="POST" action="{{ path('remise_equipement', {id: eq.id}) }}">
@@ -120,7 +122,7 @@
                         {% if en_maintenance|length > 0 %}
                             {% for eq in en_maintenance %}
                                 <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
                                     <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-1 rounded">Maintenance</span>
                                 </li>
                             {% endfor %}
@@ -138,7 +140,7 @@
                         {% if declasses|length > 0 %}
                             {% for eq in declasses %}
                                 <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.nom }}</span>
+                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
                                     <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded">Déclassé</span>
                                 </li>
                             {% endfor %}
@@ -203,5 +205,17 @@ function loadRealtimeEquipementsAdmin() {
 }
 loadRealtimeEquipementsAdmin();
 setInterval(loadRealtimeEquipementsAdmin, 10000);
+
+// Rafraîchit l'état de chaque équipement toutes les 5s
+{% for eq in equipements %}
+setInterval(function() {
+    fetch('/api/equipement/status/{{ eq.id }}')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('etat-equipement-{{ eq.id }}').textContent = data.etat;
+            document.getElementById('presence-equipement-{{ eq.id }}').textContent = 'Présence: ' + (data.physically_present ? 'Oui' : 'Non');
+        });
+}, 5000);
+{% endfor %}
 </script>
 {% endblock %}

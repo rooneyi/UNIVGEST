@@ -89,7 +89,8 @@ class PriseEquipement extends AbstractController
                     $reservation->setTelephone($telephone);
                     $reservation->setEquipement($equipement);
                     $reservation->setDateReservation(new \DateTime());
-                    $dateRemisePrevue = (new \DateTime())->modify('+24 hours');
+                    // Pour le test, la remise prévue est dans 15 secondes au lieu de 24h
+                    $dateRemisePrevue = (new \DateTime())->modify('+15 seconds');
                     $reservation->setDateRemisePrevue($dateRemisePrevue);
                     $reservation->setActive(true);
                     if ($user instanceof \App\Entity\User) {

@@ -18,6 +18,38 @@
             {% include 'partials/header.html.twig' %}
         {% endif %}
         <main class="main-content">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="fixed top-6 right-6 z-50 flex items-center px-4 py-3 rounded shadow-lg text-white text-sm font-semibold
+                        {% if label == 'success' %}bg-green-600{% elseif label == 'error' %}bg-red-600{% else %}bg-blue-600{% endif %}
+                        animate-pop-flash"
+                        style="min-width: 250px; max-width: 350px;">
+                        <span>{{ message|raw }}</span>
+                        <button onclick="this.parentElement.style.display='none'" class="ml-4 text-white text-lg font-bold">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <script>
+                // Animation d'apparition/disparition
+                document.querySelectorAll('.animate-pop-flash').forEach(function(el) {
+                    el.style.opacity = 0;
+                    setTimeout(function() {
+                        el.style.transition = 'opacity 0.3s';
+                        el.style.opacity = 1;
+                    }, 100);
+                    setTimeout(function() {
+                        el.style.opacity = 0;
+                        setTimeout(function() { el.style.display = 'none'; }, 400);
+                    }, 4000);
+                });
+            </script>
+            <style>
+                .animate-pop-flash { animation: pop-flash 0.3s; }
+                @keyframes pop-flash {
+                    0% { transform: scale(0.8); opacity: 0; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            </style>
             {% block body %}
 
             {% endblock %}

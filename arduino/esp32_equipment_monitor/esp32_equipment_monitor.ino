@@ -4,12 +4,11 @@
 #include <EEPROM.h>
 
 // Configuration WiFi
-const char* ssid = "VOTRE_WIFI_SSID";
-const char* password = "VOTRE_WIFI_PASSWORD";
+const char* ssid = "kalumba";
+const char* password = "P@55word";
 
 // Configuration serveur
-const char* serverURL = "http://votre-serveur.com/api";
-const char* apiKey = "esp32_secret_key";
+const char* serverURL = "http://localhost:8000/api";
 
 // Pins
 const int LED_DISPONIBLE = 2;    // LED verte
@@ -28,7 +27,7 @@ const unsigned long updateInterval = 5000; // 5 secondes
 
 void setup() {
   Serial.begin(115200);
-  
+
   // Configuration des pins
   pinMode(LED_DISPONIBLE, OUTPUT);
   pinMode(LED_RESERVE, OUTPUT);
@@ -36,16 +35,16 @@ void setup() {
   pinMode(BUZZER, OUTPUT);
   pinMode(BUTTON_RESET, INPUT_PULLUP);
   pinMode(SENSOR_PIN, INPUT);
-  
+
   // Initialisation EEPROM
   EEPROM.begin(512);
-  
+
   // Connexion WiFi
   connectToWiFi();
-  
+
   // Signal de démarrage
   signalStartup();
-  
+
   Serial.println("ESP32 Equipment Monitor démarré");
   Serial.println("ID Équipement: " + String(equipementId));
 }
@@ -55,18 +54,18 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     connectToWiFi();
   }
-  
+
   // Lecture du capteur de présence
   bool currentConnectionState = digitalRead(SENSOR_PIN);
-  
+
   // Détection de changement d'état
   if (currentConnectionState != lastConnectionState) {
     equipementConnected = currentConnectionState;
     lastConnectionState = currentConnectionState;
-    
+
     // Envoi immédiat de la mise à jour
     sendStatusUpdate();
-    
+
     // Signal sonore pour changement d'état
     if (equipementConnected) {
       signalConnection();
@@ -74,13 +73,13 @@ void loop() {
       signalDisconnection();
     }
   }
-  
+
   // Mise à jour périodique
   if (millis() - lastUpdate > updateInterval) {
     checkEquipmentStatus();
     lastUpdate = millis();
   }
-  
+
   // Vérification du bouton reset
   if (digitalRead(BUTTON_RESET) == LOW) {
     delay(50); // Debounce
@@ -89,21 +88,21 @@ void loop() {
       delay(1000); // Éviter les répétitions
     }
   }
-  
+
   delay(100);
 }
 
 void connectToWiFi() {
   Serial.println("Connexion au WiFi...");
   WiFi.begin(ssid, password);
-  
+
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 20) {
     delay(500);
     Serial.print(".");
     attempts++;
   }
-  
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("\nWiFi connecté!");
     Serial.println("Adresse IP: " + WiFi.localIP().toString());
@@ -117,63 +116,61 @@ void connectToWiFi() {
 }
 
 void sendStatusUpdate() {
-  if (WiFi.status() != WL_CONNECTED) return;
-  
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[DEBUG] WiFi non connecté, envoi annulé.");
+    return;
+  }
   HTTPClient http;
-  http.begin(String(serverURL) + "/equipement/update-status/" + String(equipementId));
+  String url = String(serverURL) + "/equipement/sensor-data/" + String(equipementId);
+  Serial.println("[DEBUG] POST vers: " + url);
+  http.begin(url);
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("X-API-Key", apiKey);
-  
   // Création du JSON
   DynamicJsonDocument doc(200);
   doc["connected"] = equipementConnected;
   doc["timestamp"] = millis();
-  
   String jsonString;
   serializeJson(doc, jsonString);
-  
+  Serial.println("[DEBUG] Données envoyées: " + jsonString);
   int httpResponseCode = http.POST(jsonString);
-  
+  Serial.println("[DEBUG] Code réponse HTTP: " + String(httpResponseCode));
   if (httpResponseCode > 0) {
     String response = http.getString();
-    Serial.println("Réponse serveur: " + response);
-    
+    Serial.println("[DEBUG] Réponse serveur: " + response);
     // Analyse de la réponse
     DynamicJsonDocument responseDoc(500);
     deserializeJson(responseDoc, response);
-    
     if (responseDoc["success"]) {
       updateLEDs(responseDoc["equipement"]);
     }
   } else {
-    Serial.println("Erreur HTTP: " + String(httpResponseCode));
+    Serial.println("[DEBUG] Erreur HTTP: " + String(httpResponseCode));
     signalError();
   }
-  
   http.end();
 }
 
 void checkEquipmentStatus() {
-  if (WiFi.status() != WL_CONNECTED) return;
-  
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[DEBUG] WiFi non connecté, vérification annulée.");
+    return;
+  }
   HTTPClient http;
-  http.begin(String(serverURL) + "/equipement/status/" + String(equipementId));
-  http.addHeader("X-API-Key", apiKey);
-  
+  String url = String(serverURL) + "/equipement/status/" + String(equipementId);
+  Serial.println("[DEBUG] GET vers: " + url);
+  http.begin(url);
   int httpResponseCode = http.GET();
-  
+  Serial.println("[DEBUG] Code réponse HTTP: " + String(httpResponseCode));
   if (httpResponseCode == 200) {
     String response = http.getString();
-    
+    Serial.println("[DEBUG] Réponse serveur: " + response);
     DynamicJsonDocument doc(500);
     deserializeJson(doc, response);
-    
-    updateLEDs(doc);
+    updateLEDs(doc.as<JsonObject>());
   } else {
-    Serial.println("Erreur lors de la vérification du statut: " + String(httpResponseCode));
+    Serial.println("[DEBUG] Erreur lors de la vérification du statut: " + String(httpResponseCode));
     signalError();
   }
-  
   http.end();
 }
 
@@ -182,11 +179,11 @@ void updateLEDs(JsonObject equipement) {
   digitalWrite(LED_DISPONIBLE, LOW);
   digitalWrite(LED_RESERVE, LOW);
   digitalWrite(LED_MAINTENANCE, LOW);
-  
+
   bool disponible = equipement["disponible"];
   String etat = equipement["etat"];
   bool reservationActive = !equipement["reservation_active"].isNull();
-  
+
   if (!equipementConnected) {
     // Équipement déconnecté - LED maintenance clignotante
     blinkLED(LED_MAINTENANCE, 3);
@@ -219,12 +216,12 @@ void signalStartup() {
   delay(300);
   digitalWrite(LED_MAINTENANCE, HIGH);
   delay(300);
-  
+
   // Éteindre toutes les LEDs
   digitalWrite(LED_DISPONIBLE, LOW);
   digitalWrite(LED_RESERVE, LOW);
   digitalWrite(LED_MAINTENANCE, LOW);
-  
+
   // Signal sonore
   tone(BUZZER, 1000, 200);
   delay(300);
@@ -258,13 +255,13 @@ void signalError() {
 
 void resetEquipment() {
   Serial.println("Reset de l'équipement...");
-  
+
   // Signal de reset
   signalStartup();
-  
+
   // Forcer une mise à jour
   equipementConnected = digitalRead(SENSOR_PIN);
   sendStatusUpdate();
-  
+
   Serial.println("Reset terminé");
 }

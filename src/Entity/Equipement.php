@@ -36,6 +36,8 @@ class Equipement
     #[ORM\ManyToOne(targetEntity: User::class)]
     private $maintenancier;
 
+    #[ORM\Column(type:'string', length: 50, nullable: true)]
+    private ?string $code = null;
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private $rfidTag;
 
@@ -151,6 +153,17 @@ class Equipement
         $this->derniereMiseAJour = $date;
         return $this;
     }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): void
+    {
+        $this->code = $code;
+    }
+
 
     public function getDonneesCapteursHistorique(): array
     {

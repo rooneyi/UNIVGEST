@@ -35,6 +35,7 @@ class AdminEquipementController extends AbstractController
             $equipement->setDescription($request->request->get('description'));
             $equipement->setEtat($etat);
             $equipement->setCapteurs($request->request->get('capteurs'));
+            $equipement->setCode($request->request->get('code'));
             $em->persist($equipement);
             $em->flush();
             return $this->redirectToRoute('admin_equipement_index');
@@ -61,6 +62,7 @@ class AdminEquipementController extends AbstractController
             }
             $equipement->setEtat($etat);
             $equipement->setCapteurs($request->request->get('capteurs'));
+            $equipement->setCode($request->request->get('code'));
             $em->flush();
             return $this->redirectToRoute('admin_equipement_index');
         }
