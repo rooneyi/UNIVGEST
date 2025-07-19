@@ -67,11 +67,21 @@ class ApiController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-//        // Vérification de la clé API ESP32
-//        $apiKey = $request->headers->get('X-API-Key');
-//        if ($apiKey !== $_ENV['ESP32_API_KEY'] ?? 'esp32_secret_key') {
-//            return new JsonResponse(['error' => 'Clé API invalide'], 401);
-//        }
+        // Mise à jour des données capteurs
+        if (isset($data['rfid_tag'])) {
+            $equipement->setRfidTag($data['rfid_tag']);
+        }
+        if (isset($data['weight'])) {
+            $equipement->setPoidsActuel($data['weight']);
+        }
+        if (isset($data['distance1'])) {
+            $equipement->setDistance1($data['distance1']);
+        }
+        if (isset($data['distance2'])) {
+            $equipement->setDistance2($data['distance2']);
+        }
+        $equipement->setDerniereMiseAJour(new \DateTime());
+        $equipementRepo->getEntityManager()->flush();
 
         try {
             $resultatDetection = $this->detectionService->traiterDonneesESP32($id, $data);
@@ -103,12 +113,6 @@ class ApiController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
-        // Vérification de la clé API
-        $apiKey = $request->headers->get('X-API-Key');
-        if ($apiKey !== $_ENV['ESP32_API_KEY'] ?? 'esp32_secret_key') {
-            return new JsonResponse(['error' => 'Clé API invalide'], 401);
-        }
-
         $success = $this->detectionService->calibrerEquipement($id, $data);
 
         if ($success) {
@@ -131,7 +135,6 @@ class ApiController extends AbstractController
                 'id' => $equipement->getId(),
                 'nom' => $equipement->getNom(),
                 'description' => $equipement->getDescription(),
-                'disponible' => $equipement->isDisponible(),
                 'etat' => $equipement->getEtat(),
                 'capteurs' => $equipement->getCapteurs(),
                 'reservation_active' => $reservation ? [
@@ -143,5 +146,26 @@ class ApiController extends AbstractController
         }
 
         return new JsonResponse($data);
+    }
+
+    #[Route('/equipements/realtime', name: 'api_equipements_realtime', methods: ['GET'])]
+    public function getEquipementsRealtime(EquipementRepository $equipementRepo): JsonResponse
+    {
+        $equipements = $equipementRepo->findAll();
+        $result = [];
+        foreach ($equipements as $equipement) {
+            $result[] = [
+                'id' => $equipement->getId(),
+                'nom' => $equipement->getNom(),
+                'etat' => $equipement->getEtat(),
+                'physically_present' => $equipement->isPhysiquementPresent(),
+                'last_update' => $equipement->getDerniereMiseAJour()?->format('Y-m-d H:i:s'),
+                'poids' => $equipement->getPoidsActuel(),
+                'distance1' => $equipement->getDistance1(),
+                'distance2' => $equipement->getDistance2(),
+                'rfid_tag' => $equipement->getRfidTag(),
+            ];
+        }
+        return new JsonResponse($result);
     }
 }

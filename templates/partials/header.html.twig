@@ -10,44 +10,46 @@
             <!-- Menu desktop -->
             <div class="hidden lg:flex lg:items-center lg:space-x-8">
                 <a href="{{ path('app_home') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-home mr-2"></i>Accueil
+                    Accueil
                 </a>
                 {% if is_granted("ROLE_GESTIONNAIRE") %}
                     <a href="{{ path('admin_dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-tachometer-alt mr-2"></i>Tableau de bord
+                        Tableau de bord
                     </a>
                     <a href="{{ path('admin_equipement_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-laptop mr-2"></i>Équipements
+                        Équipements
                     </a>
                     <a href="{{ path('reservation_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-calendar-check mr-2"></i>Prise
+                        Prise
                     </a>
                     <a href="{{ path('app_inventaire_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-archive mr-2"></i>Inventaire
+                        Inventaire
                     </a>
                     <a href="{{ path('app_rapport_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-file-alt mr-2"></i>Rapport
+                        Rapport
                     </a>
                 {% endif %}
                 {% if app.user %}
                     <div class="flex items-center space-x-4 ml-8 pl-8 border-l border-gray-200">
-                        <span class="text-sm text-gray-600"><i class="fas fa-user mr-2"></i>{{ app.user.email }}</span>
+                        <span class="text-sm text-gray-600">{{ app.user.email }}</span>
                         <a href="{{ path('logout') }}" class="btn-primary px-4 py-2 rounded-lg text-sm">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                            Déconnexion
                         </a>
                     </div>
                 {% else %}
                     <a href="{{ path('login') }}" class="btn-primary px-4 py-2 rounded-lg text-sm">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                        Connexion
                     </a>
                 {% endif %}
             </div>
 
             <!-- Menu mobile button -->
-            <div class="lg:hidden">
+            <div class="block lg:hidden">
                 <button type="button" class="mobile-menu-button p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100">
                     <span class="sr-only">Ouvrir le menu</span>
-                    <i class="fas fa-bars text-xl"></i>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
                 </button>
             </div>
         </nav>
@@ -93,16 +95,3 @@
         </div>
     </div>
 </header>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
-    const mobileMenu = document.querySelector('.mobile-menu');
-
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', function() {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-});
-</script>

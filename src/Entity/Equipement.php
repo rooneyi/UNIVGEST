@@ -42,16 +42,22 @@ class Equipement
     private $rfidTag;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private $poidsReference;
+    private $poidsActuel;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private $poidsActuel;
+    private $poidsReference;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private $distanceReference;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private $distanceActuelle;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $distance1;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $distance2;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private $derniereMiseAJour;
@@ -108,25 +114,21 @@ class Equipement
 
     public function getRfidTag(): ?string { return $this->rfidTag; }
 
-    public function setRfidTag(?string $rfidTag): self
-    {
+    public function setRfidTag(?string $rfidTag): self {
         $this->rfidTag = $rfidTag;
-        return $this;
-    }
-
-    public function getPoidsReference(): ?float { return $this->poidsReference; }
-
-    public function setPoidsReference(?float $poidsReference): self
-    {
-        $this->poidsReference = $poidsReference;
         return $this;
     }
 
     public function getPoidsActuel(): ?float { return $this->poidsActuel; }
 
-    public function setPoidsActuel(?float $poidsActuel): self
-    {
+    public function setPoidsActuel(?float $poidsActuel): self {
         $this->poidsActuel = $poidsActuel;
+        return $this;
+    }
+
+    public function getPoidsReference(): ?float { return $this->poidsReference; }
+    public function setPoidsReference(?float $poidsReference): self {
+        $this->poidsReference = $poidsReference;
         return $this;
     }
 
@@ -207,5 +209,16 @@ class Equipement
         }
 
         return $poidsOk && $distanceOk;
+    }
+
+    public function getDistance1(): ?int { return $this->distance1; }
+    public function setDistance1(?int $distance1): self {
+        $this->distance1 = $distance1;
+        return $this;
+    }
+    public function getDistance2(): ?int { return $this->distance2; }
+    public function setDistance2(?int $distance2): self {
+        $this->distance2 = $distance2;
+        return $this;
     }
 }

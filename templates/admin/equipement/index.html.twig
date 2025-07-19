@@ -71,10 +71,13 @@
                         {% set disponibles = equipements|filter(e => e.etat == 'Disponible') %}
                         {% if disponibles|length > 0 %}
                             {% for eq in disponibles %}
-                                <li class="py-2 flex justify-between items-center">
+                                <li class="py-2 flex flex-col gap-1">
                                     <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
-                                    <span id="etat-equipement-{{ eq.id }}" class="ml-2 text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{{ eq.etat }}</span>
-                                    <span id="presence-equipement-{{ eq.id }}" class="ml-2 text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
+                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
+                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
+                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
+                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
                                     <div class="flex gap-2">
                                         <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
                                         <form method="POST" action="{{ path('admin_equipement_declasser', {id: eq.id}) }}" onsubmit="return confirm('Voulez-vous vraiment déclasser cet équipement ?');">
@@ -154,7 +157,7 @@
             <!-- Suivi des équipements en temps réel -->
             <div class="mb-12">
                 <h2 class="text-xl font-bold mb-4 text-green-700">Suivi des équipements en temps réel</h2>
-                <div id="realtime-equipements-admin" class="mb-8"></div>
+                <div id="realtime-equipements" class="mt-10"></div>
             </div>
         </main>
     </div>
@@ -163,59 +166,49 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
-function loadRealtimeEquipementsAdmin() {
+function getBadgeColor(etat) {
+  if (etat.toLowerCase().includes('disponible')) return 'bg-green-500';
+  if (etat.toLowerCase().includes('pris')) return 'bg-blue-500';
+  if (etat.toLowerCase().includes('maintenance')) return 'bg-orange-500';
+  if (etat.toLowerCase().includes('déclassé') || etat.toLowerCase().includes('declasser')) return 'bg-red-500';
+  return 'bg-gray-400';
+}
+function refreshEquipementsRealtime() {
   fetch('/api/equipements/realtime')
     .then(response => response.json())
     .then(data => {
-      let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+      let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
       data.forEach(eq => {
-        let alert = '';
-        let needMaintenance = false;
-        if ((eq.usage_hours ?? 0) > 100) {
-          alert += '<div class="bg-red-100 text-red-700 p-2 rounded mb-2 font-bold">Alerte : Utilisation élevée (>100h)</div>';
-          needMaintenance = true;
+        // Détection présence
+        let present = false;
+        if (
+          eq.distance1 !== undefined && eq.distance2 !== undefined && eq.poids !== undefined &&
+          eq.distance1 < 5 && eq.distance2 < 5 && eq.poids >= 20
+        ) {
+          present = true;
         }
-        if ((eq.sensor_data.temperature ?? 0) > 60) {
-          alert += '<div class="bg-orange-100 text-orange-700 p-2 rounded mb-2 font-bold">Alerte : Température élevée (>60°C)</div>';
-          needMaintenance = true;
-        }
-        html += `<div class=\"border rounded p-4 bg-white shadow\">
-          ${alert}
-          <div class=\"font-bold text-lg text-gray-900\">${eq.nom}</div>
-          <div class=\"mb-2 text-sm text-gray-600\">Etat : <span class=\"font-semibold\">${eq.etat}</span></div>
-          <div class=\"mb-2 text-sm text-gray-600\">Dernière mise à jour : ${eq.last_update || '-'} </div>
-          <div class=\"mb-2 text-sm text-gray-600\">Capteurs :
-            <ul class=\"ml-2\">
-              <li>Température : ${eq.sensor_data.temperature ?? '-'}</li>
-              <li>Présence : ${eq.sensor_data.presence ?? '-'}</li>
-              <li>Poids : ${eq.sensor_data.weight ?? '-'}</li>
-              <li>Distance : ${eq.sensor_data.distance ?? '-'}</li>
-            </ul>
+        html += `
+          <div class="relative p-6 border rounded-xl shadow bg-white flex flex-col gap-2">
+            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-xs font-bold ${getBadgeColor(eq.etat)}">
+              ${present ? 'Présent' : 'Pris'}
+            </span>
+            <h3 class="font-bold text-lg mb-2">${eq.nom}</h3>
+            <div class="flex flex-col gap-1 text-sm">
+              <span><strong>Code:</strong> ${eq.code}</span>
+              <span><strong>RFID:</strong> ${eq.rfid_tag || 'N/A'}</span>
+              <span><strong>Poids:</strong> ${eq.poids || 'N/A'} g</span>
+              <span><strong>Distance 1:</strong> ${eq.distance1 || 'N/A'} cm</span>
+              <span><strong>Distance 2:</strong> ${eq.distance2 || 'N/A'} cm</span>
+              <span><strong>Dernière MAJ:</strong> ${eq.last_update ? new Date(eq.last_update).toLocaleTimeString() : 'N/A'}</span>
+            </div>
           </div>
-          <div class=\"mb-2 text-sm text-gray-600\">Heures d'utilisation : <span class=\"font-semibold\">${eq.usage_hours ?? '0'}</span></div>
-          <div class=\"w-full h-2 bg-gray-200 rounded\">
-            <div class=\"h-2 rounded bg-green-500\" style=\"width: ${Math.min(eq.usage_hours/100,1)*100}%\"></div>
-          </div>
-          ${needMaintenance ? '<button class=\"mt-4 px-4 py-2 bg-orange-600 text-white rounded\">Planifier maintenance</button>' : ''}
-        </div>`;
+        `;
       });
       html += '</div>';
-      document.getElementById('realtime-equipements-admin').innerHTML = html;
+      document.getElementById('realtime-equipements').innerHTML = html;
     });
 }
-loadRealtimeEquipementsAdmin();
-setInterval(loadRealtimeEquipementsAdmin, 10000);
-
-// Rafraîchit l'état de chaque équipement toutes les 5s
-{% for eq in equipements %}
-setInterval(function() {
-    fetch('/api/equipement/status/{{ eq.id }}')
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('etat-equipement-{{ eq.id }}').textContent = data.etat;
-            document.getElementById('presence-equipement-{{ eq.id }}').textContent = 'Présence: ' + (data.physically_present ? 'Oui' : 'Non');
-        });
-}, 5000);
-{% endfor %}
+setInterval(refreshEquipementsRealtime, 5000);
+document.addEventListener('DOMContentLoaded', refreshEquipementsRealtime);
 </script>
 {% endblock %}

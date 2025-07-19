@@ -42,6 +42,23 @@
                         setTimeout(function() { el.style.display = 'none'; }, 400);
                     }, 4000);
                 });
+                // Toggle menu mobile
+                document.addEventListener('DOMContentLoaded', function() {
+                    var btn = document.querySelector('.mobile-menu-button');
+                    var menu = document.querySelector('.mobile-menu');
+                    if (btn && menu) {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            menu.classList.toggle('hidden');
+                        });
+                        // Fermer le menu si on clique ailleurs
+                        document.addEventListener('click', function(e) {
+                            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                                menu.classList.add('hidden');
+                            }
+                        });
+                    }
+                });
             </script>
             <style>
                 .animate-pop-flash { animation: pop-flash 0.3s; }

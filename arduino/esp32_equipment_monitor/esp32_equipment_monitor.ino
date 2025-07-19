@@ -1,267 +1,194 @@
 #include <WiFi.h>
+#include <HX711.h>
+#include <SPI.h>
+#include <MFRC522.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
-#include <EEPROM.h>
 
-// Configuration WiFi
-const char* ssid = "kalumba";
-const char* password = "P@55word";
+// === CONFIGURATION WIFI ===
+const char* ssid = "Kalumba";
+const char* password = "P@55word1234";
 
-// Configuration serveur
-const char* serverURL = "http://localhost:8000/api";
+// === HX711 (Capteur de poids) ===
+#define HX711_DT 4   // GPIO4
+#define HX711_SCK 5  // GPIO5
+HX711 balance;
+float facteurCalibration = 1.0; // À ajuster après calibration
 
-// Pins
-const int LED_DISPONIBLE = 2;    // LED verte
-const int LED_RESERVE = 4;       // LED rouge
-const int LED_MAINTENANCE = 5;   // LED orange
-const int BUZZER = 18;
-const int BUTTON_RESET = 19;
-const int SENSOR_PIN = 21;       // Capteur de présence
+// === RFID RC522 ===
+#define SS_PIN 21   // GPIO21
+#define RST_PIN 22  // GPIO22
+MFRC522 mfrc522(SS_PIN, RST_PIN);  // SDA, RST
 
-// Variables
-int equipementId = 1;            // ID de l'équipement (à configurer)
-bool lastConnectionState = false;
-bool equipementConnected = false;
-unsigned long lastUpdate = 0;
-const unsigned long updateInterval = 5000; // 5 secondes
+// === Capteur Ultrason HC-SR04 ===
+#define trigPin1 12  // GPIO12
+#define echoPin1 14  // GPIO14
+#define trigPin2 27  // GPIO27
+#define echoPin2 26  // GPIO26
+
+// === Buzzer, LED, Relais ===
+#define buzzerPin 2     // GPIO2
+#define ledPin 13       // GPIO13
+#define relaisPin 15    // GPIO15
+
+extern int equipementId; // Assure que la variable est globale
 
 void setup() {
   Serial.begin(115200);
+  delay(1000);
+  Serial.println("🔧 Initialisation...");
 
-  // Configuration des pins
-  pinMode(LED_DISPONIBLE, OUTPUT);
-  pinMode(LED_RESERVE, OUTPUT);
-  pinMode(LED_MAINTENANCE, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
-  pinMode(BUTTON_RESET, INPUT_PULLUP);
-  pinMode(SENSOR_PIN, INPUT);
+  // === Capteur de poids ===
+  Serial.println("Initialisation du capteur de poids...");
+  balance.begin(HX711_DT, HX711_SCK);
+  if (!balance.is_ready()) {
+    Serial.println("❌ Erreur : HX711 non détecté !");
+  } else {
+    Serial.println("✅ HX711 prêt.");
+  }
 
-  // Initialisation EEPROM
-  EEPROM.begin(512);
+  // === RFID ===
+  Serial.println("Initialisation du lecteur RFID...");
+  SPI.begin();  // SCK=18, MISO=19, MOSI=23 (par défaut sur ESP32)
+  mfrc522.PCD_Init();
+  delay(50);
+  Serial.println("✅ RFID initialisé.");
 
-  // Connexion WiFi
-  connectToWiFi();
+  // === Capteur Ultrason ===
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
 
-  // Signal de démarrage
-  signalStartup();
+  // === Périphériques ===
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(relaisPin, OUTPUT);
 
-  Serial.println("ESP32 Equipment Monitor démarré");
-  Serial.println("ID Équipement: " + String(equipementId));
+  digitalWrite(buzzerPin, LOW);
+  digitalWrite(ledPin, LOW);
+  digitalWrite(relaisPin, LOW);
+
+  // === WiFi ===
+  Serial.print("Connexion au WiFi");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\n✅ Connecté au WiFi !");
+  Serial.print("Adresse IP : ");
+  Serial.println(WiFi.localIP());
+}
+
+void envoyerDonneesPourTousEquipements(float poids, float distance1, float distance2, String rfidTag) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String url = "http://172.29.16.201:8000/api/equipements/all";
+    http.begin(url);
+    int httpCode = http.GET();
+    if (httpCode > 0) {
+      String payload = http.getString();
+      DynamicJsonDocument doc(4096);
+      DeserializationError error = deserializeJson(doc, payload);
+      if (!error) {
+        for (JsonObject eq : doc.as<JsonArray>()) {
+          int id = eq["id"];
+          envoyerDonneesVersAPI(id, rfidTag, poids, distance1, distance2);
+        }
+      } else {
+        Serial.println("❌ Erreur de parsing JSON équipements");
+      }
+    } else {
+      Serial.println("❌ Erreur HTTP lors de la récupération des équipements");
+    }
+    http.end();
+  } else {
+    Serial.println("❌ WiFi non connecté !");
+  }
+}
+
+void envoyerDonneesVersAPI(int equipementId, String rfidTag, float poids, float distance1, float distance2) {
+  if ((WiFi.status() == WL_CONNECTED)) {
+    HTTPClient http;
+    String url = "http://172.29.16.201:8000/api/equipement/sensor-data/" + String(equipementId);
+    http.begin(url);
+    http.addHeader("Content-Type", "application/json");
+    if (rfidTag == "" || rfidTag == "00000000") rfidTag = "N/A";
+    if (isnan(poids)) poids = 0.0;
+    if (isnan(distance1)) distance1 = 0.0;
+    if (isnan(distance2)) distance2 = 0.0;
+    String json = "{";
+    json += "\"rfid_tag\":\"" + rfidTag + "\",";
+    json += "\"weight\":" + String(poids, 2) + ",";
+    json += "\"distance1\":" + String(distance1, 2) + ",";
+    json += "\"distance2\":" + String(distance2, 2);
+    json += "}";
+    Serial.print("JSON envoyé : ");
+    Serial.println(json);
+    int httpResponseCode = http.POST(json);
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.print("✅ Données envoyées pour équipement ");
+      Serial.print(equipementId);
+      Serial.print(" ! Réponse API : ");
+      Serial.println(response);
+    } else {
+      Serial.print("❌ Erreur HTTP pour équipement ");
+      Serial.print(equipementId);
+      Serial.print(" : ");
+      Serial.println(httpResponseCode);
+      Serial.print("Réponse brute : ");
+      Serial.println(http.getString());
+      http.end();
+      return;
+    }
+    http.end();
+  } else {
+    Serial.println("❌ WiFi non connecté !");
+  }
 }
 
 void loop() {
-  // Vérification de la connexion WiFi
-  if (WiFi.status() != WL_CONNECTED) {
-    connectToWiFi();
-  }
+  // === Mesure distance 1 ===
+  digitalWrite(trigPin1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin1, LOW);
+  long duration1 = pulseIn(echoPin1, HIGH);
+  float distance1 = duration1 * 0.034 / 2;
+  Serial.print("📏 Distance 1 : ");
+  Serial.print(distance1, 2);
+  Serial.println(" cm");
 
-  // Lecture du capteur de présence
-  bool currentConnectionState = digitalRead(SENSOR_PIN);
+  // === Mesure distance 2 ===
+  digitalWrite(trigPin2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin2, LOW);
+  long duration2 = pulseIn(echoPin2, HIGH);
+  float distance2 = duration2 * 0.034 / 2;
+  Serial.print("📏 Distance 2 : ");
+  Serial.print(distance2, 2);
+  Serial.println(" cm");
 
-  // Détection de changement d'état
-  if (currentConnectionState != lastConnectionState) {
-    equipementConnected = currentConnectionState;
-    lastConnectionState = currentConnectionState;
-
-    // Envoi immédiat de la mise à jour
-    sendStatusUpdate();
-
-    // Signal sonore pour changement d'état
-    if (equipementConnected) {
-      signalConnection();
-    } else {
-      signalDisconnection();
-    }
-  }
-
-  // Mise à jour périodique
-  if (millis() - lastUpdate > updateInterval) {
-    checkEquipmentStatus();
-    lastUpdate = millis();
-  }
-
-  // Vérification du bouton reset
-  if (digitalRead(BUTTON_RESET) == LOW) {
-    delay(50); // Debounce
-    if (digitalRead(BUTTON_RESET) == LOW) {
-      resetEquipment();
-      delay(1000); // Éviter les répétitions
-    }
-  }
-
-  delay(100);
-}
-
-void connectToWiFi() {
-  Serial.println("Connexion au WiFi...");
-  WiFi.begin(ssid, password);
-
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\nWiFi connecté!");
-    Serial.println("Adresse IP: " + WiFi.localIP().toString());
-    digitalWrite(LED_DISPONIBLE, HIGH);
-    delay(500);
-    digitalWrite(LED_DISPONIBLE, LOW);
+  // === Poids ===
+  float poids = 0;
+  bool poidsPret = balance.is_ready();
+  if (poidsPret) {
+    poids = balance.get_units(10) * facteurCalibration;
+    Serial.print("⚖️ Poids calibré : ");
+    Serial.print(poids, 2);
+    Serial.println(" g");
   } else {
-    Serial.println("\nÉchec de connexion WiFi");
-    signalError();
+    Serial.println("❌ Capteur de poids non prêt !");
   }
-}
 
-void sendStatusUpdate() {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[DEBUG] WiFi non connecté, envoi annulé.");
-    return;
-  }
-  HTTPClient http;
-  String url = String(serverURL) + "/equipement/sensor-data/" + String(equipementId);
-  Serial.println("[DEBUG] POST vers: " + url);
-  http.begin(url);
-  http.addHeader("Content-Type", "application/json");
-  // Création du JSON
-  DynamicJsonDocument doc(200);
-  doc["connected"] = equipementConnected;
-  doc["timestamp"] = millis();
-  String jsonString;
-  serializeJson(doc, jsonString);
-  Serial.println("[DEBUG] Données envoyées: " + jsonString);
-  int httpResponseCode = http.POST(jsonString);
-  Serial.println("[DEBUG] Code réponse HTTP: " + String(httpResponseCode));
-  if (httpResponseCode > 0) {
-    String response = http.getString();
-    Serial.println("[DEBUG] Réponse serveur: " + response);
-    // Analyse de la réponse
-    DynamicJsonDocument responseDoc(500);
-    deserializeJson(responseDoc, response);
-    if (responseDoc["success"]) {
-      updateLEDs(responseDoc["equipement"]);
-    }
-  } else {
-    Serial.println("[DEBUG] Erreur HTTP: " + String(httpResponseCode));
-    signalError();
-  }
-  http.end();
-}
+  // Envoi des données à l'API sans RFID
+  String rfidTag = "N/A"; // RFID désactivé
+  envoyerDonneesPourTousEquipements(poids, distance1, distance2, rfidTag);
 
-void checkEquipmentStatus() {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[DEBUG] WiFi non connecté, vérification annulée.");
-    return;
-  }
-  HTTPClient http;
-  String url = String(serverURL) + "/equipement/status/" + String(equipementId);
-  Serial.println("[DEBUG] GET vers: " + url);
-  http.begin(url);
-  int httpResponseCode = http.GET();
-  Serial.println("[DEBUG] Code réponse HTTP: " + String(httpResponseCode));
-  if (httpResponseCode == 200) {
-    String response = http.getString();
-    Serial.println("[DEBUG] Réponse serveur: " + response);
-    DynamicJsonDocument doc(500);
-    deserializeJson(doc, response);
-    updateLEDs(doc.as<JsonObject>());
-  } else {
-    Serial.println("[DEBUG] Erreur lors de la vérification du statut: " + String(httpResponseCode));
-    signalError();
-  }
-  http.end();
-}
-
-void updateLEDs(JsonObject equipement) {
-  // Éteindre toutes les LEDs
-  digitalWrite(LED_DISPONIBLE, LOW);
-  digitalWrite(LED_RESERVE, LOW);
-  digitalWrite(LED_MAINTENANCE, LOW);
-
-  bool disponible = equipement["disponible"];
-  String etat = equipement["etat"];
-  bool reservationActive = !equipement["reservation_active"].isNull();
-
-  if (!equipementConnected) {
-    // Équipement déconnecté - LED maintenance clignotante
-    blinkLED(LED_MAINTENANCE, 3);
-  } else if (reservationActive) {
-    // Équipement réservé - LED rouge
-    digitalWrite(LED_RESERVE, HIGH);
-  } else if (disponible && etat == "disponible") {
-    // Équipement disponible - LED verte
-    digitalWrite(LED_DISPONIBLE, HIGH);
-  } else {
-    // Équipement en maintenance - LED orange
-    digitalWrite(LED_MAINTENANCE, HIGH);
-  }
-}
-
-void blinkLED(int pin, int times) {
-  for (int i = 0; i < times; i++) {
-    digitalWrite(pin, HIGH);
-    delay(200);
-    digitalWrite(pin, LOW);
-    delay(200);
-  }
-}
-
-void signalStartup() {
-  // Séquence de démarrage
-  digitalWrite(LED_DISPONIBLE, HIGH);
-  delay(300);
-  digitalWrite(LED_RESERVE, HIGH);
-  delay(300);
-  digitalWrite(LED_MAINTENANCE, HIGH);
-  delay(300);
-
-  // Éteindre toutes les LEDs
-  digitalWrite(LED_DISPONIBLE, LOW);
-  digitalWrite(LED_RESERVE, LOW);
-  digitalWrite(LED_MAINTENANCE, LOW);
-
-  // Signal sonore
-  tone(BUZZER, 1000, 200);
-  delay(300);
-  tone(BUZZER, 1500, 200);
-}
-
-void signalConnection() {
-  // Signal de connexion d'équipement
-  blinkLED(LED_DISPONIBLE, 2);
-  tone(BUZZER, 1200, 100);
-  delay(150);
-  tone(BUZZER, 1200, 100);
-}
-
-void signalDisconnection() {
-  // Signal de déconnexion d'équipement
-  blinkLED(LED_RESERVE, 3);
-  tone(BUZZER, 800, 300);
-}
-
-void signalError() {
-  // Signal d'erreur
-  for (int i = 0; i < 5; i++) {
-    digitalWrite(LED_RESERVE, HIGH);
-    tone(BUZZER, 500, 100);
-    delay(100);
-    digitalWrite(LED_RESERVE, LOW);
-    delay(100);
-  }
-}
-
-void resetEquipment() {
-  Serial.println("Reset de l'équipement...");
-
-  // Signal de reset
-  signalStartup();
-
-  // Forcer une mise à jour
-  equipementConnected = digitalRead(SENSOR_PIN);
-  sendStatusUpdate();
-
-  Serial.println("Reset terminé");
+  delay(5000);  // Pause avant prochaine mesure
 }
