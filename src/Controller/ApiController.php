@@ -156,6 +156,7 @@ class ApiController extends AbstractController
         foreach ($equipements as $equipement) {
             $result[] = [
                 'id' => $equipement->getId(),
+                'code' => $equipement->getCode(),
                 'nom' => $equipement->getNom(),
                 'etat' => $equipement->getEtat(),
                 'physically_present' => $equipement->isPhysiquementPresent(),

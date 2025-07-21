@@ -63,26 +63,25 @@
             </div>
 
             <!-- Listes -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
                 <!-- Disponibles -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-3 text-green-700">Équipements disponibles</h2>
-                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                    <h2 class="text-lg font-semibold mb-3 text-green-700 flex items-center gap-2"><i class="fa fa-check-circle"></i> Disponibles</h2>
+                    <ul class="bg-white rounded-xl shadow p-4 divide-y divide-gray-100 min-h-[200px]">
                         {% set disponibles = equipements|filter(e => e.etat == 'Disponible') %}
                         {% if disponibles|length > 0 %}
                             {% for eq in disponibles %}
-                                <li class="py-2 flex flex-col gap-1">
-                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
+                                <li class="py-4 flex flex-col gap-2">
+                                    <span class="font-bold text-green-700 text-base">{{ eq.nom }}</span>
+                                    <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
                                     <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
                                     <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
                                     <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
                                     <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
-                                    <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
-                                    <div class="flex gap-2">
-                                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
-                                        <form method="POST" action="{{ path('admin_equipement_declasser', {id: eq.id}) }}" onsubmit="return confirm('Voulez-vous vraiment déclasser cet équipement ?');">
-                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
-                                        </form>
+                                    <span class="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
+                                    <div class="flex gap-2 mt-2">
+                                        <button type="button" onclick="openGlobalModal({{ eq.id }})" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded">Prendre</button>
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
                                     </div>
                                 </li>
                             {% endfor %}
@@ -91,23 +90,23 @@
                         {% endif %}
                     </ul>
                 </div>
-
                 <!-- Pris -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-3 text-blue-700">Équipements pris</h2>
-                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
+                    <h2 class="text-lg font-semibold mb-3 text-blue-700 flex items-center gap-2"><i class="fa fa-box"></i> Pris</h2>
+                    <ul class="bg-white rounded-xl shadow p-4 divide-y divide-gray-100 min-h-[200px]">
                         {% set reserves = equipements|filter(e => e.etat == 'Pris') %}
                         {% if reserves|length > 0 %}
                             {% for eq in reserves %}
-                                <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
-                                    <div class="flex gap-2">
-                                        <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">Pris</span>
-                                        <form method="POST" action="{{ path('remise_equipement', {id: eq.id}) }}">
-                                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">
-                                                Remettre
-                                            </button>
-                                        </form>
+                                <li class="py-4 flex flex-col gap-2">
+                                    <span class="font-bold text-blue-700 text-base">{{ eq.nom }}</span>
+                                    <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
+                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
+                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
+                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
+                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+                                    <span class="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">Pris</span>
+                                    <div class="flex gap-2 mt-2">
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
                                     </div>
                                 </li>
                             {% endfor %}
@@ -116,17 +115,21 @@
                         {% endif %}
                     </ul>
                 </div>
-
                 <!-- Maintenance -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-3 text-orange-700">Équipements en maintenance</h2>
-                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
-                        {% set en_maintenance = equipements|filter(e => e.etat matches '/maintenance/i') %}
-                        {% if en_maintenance|length > 0 %}
-                            {% for eq in en_maintenance %}
-                                <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
-                                    <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-1 rounded">Maintenance</span>
+                    <h2 class="text-lg font-semibold mb-3 text-orange-700 flex items-center gap-2"><i class="fa fa-wrench"></i> Maintenance</h2>
+                    <ul class="bg-white rounded-xl shadow p-4 divide-y divide-gray-100 min-h-[200px]">
+                        {% set maintenance = equipements|filter(e => e.etat matches '/Maintenance/i') %}
+                        {% if maintenance|length > 0 %}
+                            {% for eq in maintenance %}
+                                <li class="py-4 flex flex-col gap-2">
+                                    <span class="font-bold text-orange-700 text-base">{{ eq.nom }}</span>
+                                    <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
+                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
+                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
+                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
+                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+                                    <span class="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-1 rounded">Maintenance</span>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -134,17 +137,21 @@
                         {% endif %}
                     </ul>
                 </div>
-
                 <!-- Déclassés -->
                 <div>
-                    <h2 class="text-lg font-semibold mb-3 text-red-700">Équipements déclassés</h2>
-                    <ul class="bg-white rounded-lg shadow p-4 divide-y divide-gray-100">
-                        {% set declasses = equipements|filter(e => e.etat|lower == 'déclassé' or e.etat|lower == 'declasser') %}
+                    <h2 class="text-lg font-semibold mb-3 text-red-700 flex items-center gap-2"><i class="fa fa-ban"></i> Déclassés</h2>
+                    <ul class="bg-white rounded-xl shadow p-4 divide-y divide-gray-100 min-h-[200px]">
+                        {% set declasses = equipements|filter(e => e.etat matches '/Déclassé|Declasser/i') %}
                         {% if declasses|length > 0 %}
                             {% for eq in declasses %}
-                                <li class="py-2 flex justify-between items-center">
-                                    <span class="text-gray-800">{{ eq.code ~ ' - ' ~ eq.nom }}</span>
-                                    <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded">Déclassé</span>
+                                <li class="py-4 flex flex-col gap-2">
+                                    <span class="font-bold text-red-700 text-base">{{ eq.nom }}</span>
+                                    <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
+                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
+                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
+                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
+                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+                                    <span class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded">Déclassé</span>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -154,19 +161,82 @@
                 </div>
             </div>
 
-            <!-- Suivi des équipements en temps réel -->
-            <div class="mb-12">
-                <h2 class="text-xl font-bold mb-4 text-green-700">Suivi des équipements en temps réel</h2>
-                <div id="realtime-equipements" class="mt-10"></div>
+            <div class="mb-12 w-full px-2">
+                <h2 class="text-2xl font-bold mb-6 text-green-700 flex items-center gap-2">
+                    <i class="fa fa-microchip"></i> Suivi intelligent des équipements en temps réel
+                </h2>
+                <div id="realtime-equipements" class="w-full"></div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal global -->
+    <div id="global-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+      <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+        <button type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl" onclick="closeGlobalModal()">&times;</button>
+        <h2 class="text-xl font-bold mb-4 text-center"><img class="w-12" src="{{ asset('logo/udbl-logo.svg') }}" />Sortie : Sélection d'équipements</h2>
+        <form action="{{ path('reservation_index') }}" method="post" class="space-y-4">
+          <input type="hidden" name="date_prise" value="{{ "now"|date('Y-m-d H:i:s') }}">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+            <input type="text" name="nom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Post-nom</label>
+            <input type="text" name="postnom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+            <input type="text" name="prenom" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Promotion</label>
+            <select name="promotion" class="block w-full border border-gray-300 rounded px-3 py-2" required>
+              <option value="">Sélectionner</option>
+              <option value="L1">L1</option>
+              <option value="L2">L2</option>
+              <option value="L3">L3</option>
+              <option value="L4">L4</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filière</label>
+            <input type="text" name="filiere" id="filiere-global" class="block w-full border border-gray-300 rounded px-3 py-2" readonly />
+          </div>
+          <script>
+            document.querySelector('select[name="promotion"]').addEventListener('change', function() {
+              const filiereInput = document.getElementById('filiere-global');
+              if (this.value === 'L1' || this.value === 'L2') {
+                filiereInput.value = 'Science de base';
+                filiereInput.readOnly = true;
+              } else {
+                filiereInput.value = '';
+                filiereInput.readOnly = false;
+              }
+            });
+          </script>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
+            <input type="email" name="email" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Num��ro de téléphone</label>
+            <input type="tel" name="telephone" class="block w-full border border-gray-300 rounded px-3 py-2" required />
+          </div>
+          <button type="submit" class="inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150">
+            <svg class="-ml-0.5 h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            Valider la prise
+          </button>
+        </form>
+      </div>
     </div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
 <script>
-function getBadgeColor(etat) {
+function getBadgeColor(etat, isNotRemis) {
+  if (isNotRemis) return 'bg-red-500';
   if (etat.toLowerCase().includes('disponible')) return 'bg-green-500';
   if (etat.toLowerCase().includes('pris')) return 'bg-blue-500';
   if (etat.toLowerCase().includes('maintenance')) return 'bg-orange-500';
@@ -177,38 +247,39 @@ function refreshEquipementsRealtime() {
   fetch('/api/equipements/realtime')
     .then(response => response.json())
     .then(data => {
-      let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
+      let html = '';
       data.forEach(eq => {
-        // Détection présence
-        let present = false;
-        if (
-          eq.distance1 !== undefined && eq.distance2 !== undefined && eq.poids !== undefined &&
-          eq.distance1 < 5 && eq.distance2 < 5 && eq.poids >= 20
-        ) {
-          present = true;
+        let isNotRemis = false;
+        if (eq.etat && eq.etat.toLowerCase() === 'disponible' && ((eq.distance1 !== undefined && eq.distance1 < 30) || (eq.distance2 !== undefined && eq.distance2 < 30))) {
+          isNotRemis = true;
         }
         html += `
-          <div class="relative p-6 border rounded-xl shadow bg-white flex flex-col gap-2">
-            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-xs font-bold ${getBadgeColor(eq.etat)}">
-              ${present ? 'Présent' : 'Pris'}
-            </span>
-            <h3 class="font-bold text-lg mb-2">${eq.nom}</h3>
-            <div class="flex flex-col gap-1 text-sm">
-              <span><strong>Code:</strong> ${eq.code}</span>
-              <span><strong>RFID:</strong> ${eq.rfid_tag || 'N/A'}</span>
-              <span><strong>Poids:</strong> ${eq.poids || 'N/A'} g</span>
-              <span><strong>Distance 1:</strong> ${eq.distance1 || 'N/A'} cm</span>
-              <span><strong>Distance 2:</strong> ${eq.distance2 || 'N/A'} cm</span>
-              <span><strong>Dernière MAJ:</strong> ${eq.last_update ? new Date(eq.last_update).toLocaleTimeString() : 'N/A'}</span>
+          <li class="py-4 flex flex-col gap-2 bg-white rounded-xl shadow p-4 min-h-[200px]">
+            <span class="font-bold text-base ${eq.etat === 'Disponible' ? 'text-green-700' : (eq.etat === 'Pris' ? 'text-blue-700' : (eq.etat && eq.etat.toLowerCase().includes('maintenance') ? 'text-orange-700' : 'text-red-800'))}">${eq.nom}</span>
+            <span class="text-xs text-gray-600">Code: ${eq.code}</span>
+            <span class="text-xs text-gray-600">RFID: ${eq.rfid_tag || 'N/A'}</span>
+            <span class="text-xs text-gray-600">Poids: ${eq.poids || 'N/A'} g</span>
+            <span class="text-xs text-gray-600">Distance 1: ${eq.distance1 || 'N/A'} cm</span>
+            <span class="text-xs text-gray-600">Distance 2: ${eq.distance2 || 'N/A'} cm</span>
+            <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.etat === 'Disponible' ? 'bg-green-100 text-green-700' : (eq.etat === 'Pris' ? 'bg-blue-100 text-blue-700' : (eq.etat && eq.etat.toLowerCase().includes('maintenance') ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'))}">${eq.etat}</span>
+            <div class="mt-2 flex gap-2">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${isNotRemis ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                ${isNotRemis ? '<i class=\'fa fa-exclamation-triangle\'></i> Capteur : Pas remis' : '<i class=\'fa fa-check\'></i> Capteur : OK'}
+              </span>
             </div>
-          </div>
+          </li>
         `;
       });
-      html += '</div>';
-      document.getElementById('realtime-equipements').innerHTML = html;
+      document.getElementById('realtime-equipements').innerHTML = `<ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full'>${html}</ul>`;
     });
 }
 setInterval(refreshEquipementsRealtime, 5000);
 document.addEventListener('DOMContentLoaded', refreshEquipementsRealtime);
+function openGlobalModal(equipementId) {
+    document.getElementById('global-modal').classList.remove('hidden');
+}
+function closeGlobalModal() {
+    document.getElementById('global-modal').classList.add('hidden');
+}
 </script>
 {% endblock %}
