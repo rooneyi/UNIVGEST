@@ -137,6 +137,34 @@
                         {% endfor %}
                     </div>
                 </div>
+
+                <!-- Suivi intelligent des équipements en temps réel -->
+                <div class="mb-12 w-full px-2">
+                    <h2 class="text-2xl font-bold mb-6 text-green-700 flex items-center gap-2">
+                        <i class="fa fa-microchip"></i> Suivi intelligent des équipements en temps réel
+                    </h2>
+                    <div id="dashboard-realtime-equipements" class="w-full"></div>
+                </div>
+                <!-- Graphique d'utilisation des équipements par jour (global) -->
+                <div class="mb-12 w-full px-2">
+                    <h2 class="text-2xl font-bold mb-6 text-indigo-700 flex items-center gap-2">
+                        <i class="fa fa-calendar"></i> Utilisation quotidienne des équipements (global)
+                    </h2>
+                    <canvas id="dashboardEquipementUsagePerDayChart" style="max-width:900px;max-height:400px;"></canvas>
+                </div>
+
+                <!-- Filtres d'équipements par heures d'utilisation -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Filtrer les équipements selon les heures d'utilisation</h2>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <button onclick="showEquipements('0_30h')" class="px-4 py-2 bg-gray-600 text-white rounded shadow">0h - 29h</button>
+                        <button onclick="showEquipements('30h')" class="px-4 py-2 bg-blue-600 text-white rounded shadow">30h - 49h</button>
+                        <button onclick="showEquipements('50h')" class="px-4 py-2 bg-green-600 text-white rounded shadow">50h - 79h</button>
+                        <button onclick="showEquipements('80h')" class="px-4 py-2 bg-yellow-500 text-white rounded shadow">80h - 99h</button>
+                        <button onclick="showEquipements('100h')" class="px-4 py-2 bg-red-600 text-white rounded shadow">100h et plus</button>
+                    </div>
+                    <div id="equipements-filtre-resultat" class="mt-4"></div>
+                </div>
             </div>
         </main>
     </div>
@@ -156,7 +184,7 @@
             data: {
                 labels: ['Disponibles', 'Pris', 'Maintenance', 'Déclassés'],
                 datasets: [{
-                    label: 'Équipements',
+                    label: '����quipements',
                     data: [disponibles, pris, maintenance, declasses],
                     backgroundColor: ['#10b981', '#2563eb', '#f59e42', '#dc2626']
                 }]
@@ -249,5 +277,81 @@
                 });
         }, 5000);
         {% endfor %}
+
+        // Graphique d'utilisation par équipement (un seul graphique, chaque équipement une couleur)
+        const equipementUsagePerDay = {{ equipementUsagePerDay|json_encode|raw }};
+        const equipements = {{ equipements|map(e => {'id': e.id, 'nom': e.nom})|json_encode|raw }};
+        let allDates = new Set();
+        Object.values(equipementUsagePerDay).forEach(usage => {
+            Object.keys(usage).forEach(date => allDates.add(date));
+        });
+        allDates = Array.from(allDates).sort();
+        // Chaque dataset = un équipement, chaque couleur
+        const colors = [
+            '#2563eb', '#10b981', '#f59e42', '#dc2626', '#6366f1', '#f43f5e', '#14b8a6', '#fbbf24', '#a3e635', '#e11d48'
+        ];
+        const datasets = equipements.map((eq, idx) => {
+            const usage = equipementUsagePerDay[eq.id] || {};
+            const data = allDates.map(date => usage[date] || 0);
+            return {
+                label: eq.nom,
+                data: data,
+                backgroundColor: colors[idx % colors.length],
+                borderColor: colors[idx % colors.length],
+                borderWidth: 2
+            };
+        });
+        const ctxGlobal = document.getElementById('dashboardEquipementUsagePerDayChart').getContext('2d');
+        new Chart(ctxGlobal, {
+            type: 'bar',
+            data: {
+                labels: allDates,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { beginAtZero: true, title: { display: true, text: 'Utilisations' }, ticks: { precision: 0 } }
+                }
+            }
+        });
+
+        // Filtres JS
+        const equipements0_30h = {{ equipements0_30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements30h = {{ equipements30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements50h = {{ equipements50h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements80h = {{ equipements80h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements100h = {{ equipements100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipementsPlus100h = {{ equipementsPlus100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        function showEquipements(type) {
+            let html = '';
+            let list = [];
+            if(type === '0_30h') {
+                list = equipements0_30h;
+                html = '<b>Équipements entre 0h et 29h :</b>';
+            } else if(type === '30h') {
+                list = equipements30h;
+                html = '<b>Équipements entre 30h et 49h :</b>';
+            } else if(type === '50h') {
+                list = equipements50h;
+                html = '<b>Équipements entre 50h et 79h :</b>';
+            } else if(type === '80h') {
+                list = equipements80h;
+                html = '<b>Équipements entre 80h et 99h :</b>';
+            } else if(type === '100h') {
+                list = equipements100h;
+                html = '<b>Équipements à partir de 100h :</b>';
+            }
+            if(list.length === 0) {
+                html += '<div class="text-gray-500">Aucun équipement concerné.</div>';
+            } else {
+                html += '<ul>' + list.map(e => `<li><span class='font-bold'>${e.nom}</span> — <span class='text-blue-700'>${e.heures} h</span></li>`).join('') + '</ul>';
+            }
+            document.getElementById('equipements-filtre-resultat').innerHTML = html;
+        }
     </script>
 {% endblock %}

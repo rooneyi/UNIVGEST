@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: \App\Repository\EquipementRepository::class)]
 class Equipement
@@ -65,9 +67,13 @@ class Equipement
     #[ORM\Column(type: 'json', nullable: true)]
     private $donneesCapteursHistorique = [];
 
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'equipement')]
+    private $reservations;
+
     public function __construct()
     {
         $this->etat = self::ETAT_DISPONIBLE;
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -220,5 +226,13 @@ class Equipement
     public function setDistance2(?int $distance2): self {
         $this->distance2 = $distance2;
         return $this;
+    }
+
+    /**
+     * @return Collection|Reservation[]
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
     }
 }

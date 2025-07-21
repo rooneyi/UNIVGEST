@@ -25,6 +25,47 @@ class AdminController extends AbstractController
         $reservations = $reservationRepository->findAll();
         $filter = null;
 
+        // Calcul des utilisations par jour pour chaque équipement
+        $equipementUsagePerDay = [];
+        foreach ($equipementRepository->findAll() as $equipement) {
+            $usagePerDay = [];
+            foreach ($reservations as $reservation) {
+                if ($reservation->getEquipement() && $reservation->getEquipement()->getId() === $equipement->getId()) {
+                    // On compte la date de remise comme "fin d'utilisation"
+                    $date = $reservation->getDateRemise();
+                    if ($date) {
+                        $dateStr = $date->format('Y-m-d');
+                        if (!isset($usagePerDay[$dateStr])) $usagePerDay[$dateStr] = 0;
+                        $usagePerDay[$dateStr]++;
+                    }
+                }
+            }
+            $equipementUsagePerDay[$equipement->getId()] = $usagePerDay;
+        }
+
+        // Filtrage des équipements selon leur temps d'utilisation (exemple: usage_hours)
+        $equipements = $equipementRepository->findAll();
+        $equipements0_30h = [];
+        $equipements30h = [];
+        $equipements50h = [];
+        $equipements80h = [];
+        $equipements100h = [];
+        $equipementsPlus100h = [];
+        foreach ($equipements as $eq) {
+            $usage = $eq->usage_hours ?? 0;
+            if ($usage >= 0 && $usage < 30) {
+                $equipements0_30h[] = $eq;
+            } elseif ($usage >= 30 && $usage < 50) {
+                $equipements30h[] = $eq;
+            } elseif ($usage >= 50 && $usage < 80) {
+                $equipements50h[] = $eq;
+            } elseif ($usage >= 80 && $usage < 100) {
+                $equipements80h[] = $eq;
+            } elseif ($usage >= 100) {
+                $equipements100h[] = $eq;
+                $equipementsPlus100h[] = $eq;
+            }
+        }
 
         // Notifications (exemple flash)
         if ($request->query->get('notif') === 'new') {
@@ -39,7 +80,13 @@ class AdminController extends AbstractController
             'prise' => $reservations,
             'filter' => $filter,
             'equipements' => $equipementRepository->findAll(),
-
+            'equipementUsagePerDay' => $equipementUsagePerDay,
+            'equipements0_30h' => $equipements0_30h,
+            'equipements30h' => $equipements30h,
+            'equipements50h' => $equipements50h,
+            'equipements80h' => $equipements80h,
+            'equipements100h' => $equipements100h,
+            'equipementsPlus100h' => $equipementsPlus100h,
         ]);
     }
 
