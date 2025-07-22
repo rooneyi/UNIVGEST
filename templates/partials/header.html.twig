@@ -12,7 +12,15 @@
                 <a href="{{ path('app_home') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                     Accueil
                 </a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_user_index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        Gerer Les Utilisateurs
+                    </a>
+                {% endif %}
                 {% if is_granted("ROLE_GESTIONNAIRE") %}
+                    <a href="{{ path('maintenance_page') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        Maintenance
+                    </a>
                     <a href="{{ path('admin_dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
                         Tableau de bord
                     </a>

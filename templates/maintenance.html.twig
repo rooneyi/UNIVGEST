@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Maintenance{% endblock %}
+
+{% block body %}
+<div class="container mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6">Gestion des maintenances</h1>
+    <div class="space-y-4">
+        <a href="{{ path('admin_equipement_maintenance') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+            Voir les maintenances
+        </a>
+        {% if equipements is defined %}
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-semibold text-yellow-700 mb-4">Équipements en maintenance</h2>
+            <!-- Filtres d'équipements par heures d'utilisation -->
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-4 text-indigo-700">Filtrer les équipements selon les heures d'utilisation</h2>
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <button onclick="showEquipements('0_30h')" class="px-4 py-2 bg-gray-600 text-white rounded shadow">0h - 29h</button>
+                    <button onclick="showEquipements('30h')" class="px-4 py-2 bg-blue-600 text-white rounded shadow">30h - 49h</button>
+                    <button onclick="showEquipements('50h')" class="px-4 py-2 bg-green-600 text-white rounded shadow">50h - 79h</button>
+                    <button onclick="showEquipements('80h')" class="px-4 py-2 bg-yellow-500 text-white rounded shadow">80h - 99h</button>
+                    <button onclick="showEquipements('100h')" class="px-4 py-2 bg-red-600 text-white rounded shadow">100h et plus</button>
+                </div>
+                <div id="equipements-filtre-resultat" class="mt-4"></div>
+            </div>
+            {% set en_maintenance = equipements|filter(e => e.etat == 'Maintenance' or e.etat matches '/Maintenance/i') %}
+            <ul class="divide-y divide-gray-200">
+                {% if en_maintenance|length > 0 %}
+                    {% for eq in en_maintenance %}
+                        <li class="py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                            <span class="text-gray-800 font-medium">{{ eq.nom }}</span>
+                            <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
+                            <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
+                            <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
+                            <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
+                            <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">En maintenance</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-gray-500">Aucun équipement en maintenance.</li>
+
+                {% endif %}
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 mt-8">
+            <h2 class="text-lg font-semibold text-blue-700 mb-4 text-center">Heures d'utilisation par équipement</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left">Nom</th>
+                            <th class="px-4 py-2 text-left">Code</th>
+                            <th class="px-4 py-2 text-left">Heures d'utilisation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eq in equipements %}
+                        <tr>
+                            <td class="px-4 py-2">{{ eq.nom }}</td>
+                            <td class="px-4 py-2">{{ eq.code }}</td>
+                            <td class="px-4 py-2">{{ eq.getTempsUtilisationTotal() }} h</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-8">
+                <canvas id="equipementUsageChart" style="max-width:700px;max-height:400px;"></canvas>
+            </div>
+        </div>
+        {% else %}
+            <div class="bg-yellow-100 text-yellow-800 p-4 rounded">Aucun équipement à afficher. Veuillez vérifier la configuration du contrôleur.</div>
+        {% endif %}
+    </div>
+</div>
+    <script>
+        // Filtres JS
+        const equipements0_30h = {{ equipements0_30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements30h = {{ equipements30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements50h = {{ equipements50h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements80h = {{ equipements80h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements100h = {{ equipements100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipementsPlus100h = {{ equipementsPlus100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        function showEquipements(type) {
+            let html = '';
+            let list = [];
+            if(type === '0_30h') {
+                list = equipements0_30h;
+                html = '<b>Équipements entre 0h et 29h :</b>';
+            } else if(type === '30h') {
+                list = equipements30h;
+                html = '<b>Équipements entre 30h et 49h :</b>';
+            } else if(type === '50h') {
+                list = equipements50h;
+                html = '<b>Équipements entre 50h et 79h :</b>';
+            } else if(type === '80h') {
+                list = equipements80h;
+                html = '<b>Équipements entre 80h et 99h :</b>';
+            } else if(type === '100h') {
+                list = equipements100h;
+                html = '<b>Équipements à partir de 100h :</b>';
+            }
+            if(list.length === 0) {
+                html += '<div class="text-gray-500">Aucun équipement concerné.</div>';
+            } else {
+                html += '<ul>' + list.map(e => `<li><span class='font-bold'>${e.nom}</span> — <span class='text-blue-700'>${e.heures} h</span></li>`).join('') + '</ul>';
+            }
+            document.getElementById('equipements-filtre-resultat').innerHTML = html;
+        }
+
+        // Données pour le graphique d'usage
+        const equipementsUsage = [
+            {% for eq in equipements %}
+                { nom: "{{ eq.nom|e('js') }}", heures: {{ eq.getTempsUtilisationTotal() }} },
+            {% endfor %}
+        ];
+        const ctxUsage = document.getElementById('equipementUsageChart').getContext('2d');
+        new Chart(ctxUsage, {
+            type: 'bar',
+            data: {
+                labels: equipementsUsage.map(e => e.nom),
+                datasets: [{
+                    label: 'Heures d\'utilisation',
+                    data: equipementsUsage.map(e => e.heures),
+                    backgroundColor: '#2563eb',
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Heures' } }
+                }
+            }
+        });
+    </script>
+
+{% endblock %}

@@ -10,60 +10,29 @@
     <div class="min-h-full bg-gray-50">
         <main>
             <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-8">Tableau de bord principal</h1>
-
-                <!-- Actions rapides -->
-                <div class="mb-10">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Actions rapides</h2>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ path('admin_user_index') }}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 shadow">
-                            <i class="fas fa-user-plus mr-2"></i>Gerer utilisateur
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Statistiques et Graphiques -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                    <!-- Statistiques brèves -->
-                    <div class="space-y-6">
-                        <div class="bg-white rounded-xl shadow p-6 text-center">
-                            <div class="text-4xl font-extrabold text-blue-700">{{ users|length }}</div>
-                            <div class="mt-2 text-gray-600">Utilisateurs</div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow p-6">
-                            <canvas id="equipementChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Répartition graphique -->
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4 text-gray-700">Répartition des équipements</h2>
-                        <canvas id="equipementPieChart" style="max-width:350px;max-height:350px;"></canvas>
-                    </div>
-                </div>
-
+                <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">Tableau de bord principal</h1>
                 <!-- Liste des équipements -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-center">
                     <!-- Disponibles -->
                     <div class="bg-white rounded-xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-green-700 mb-4">Équipements disponibles</h2>
+                        <h2 class="text-lg font-semibold text-green-700 mb-4 text-center">Équipements disponibles</h2>
                         {% set disponibles = equipements|filter(e => e.etat == 'Disponible') %}
-                        <ul>
-                        {% for eq in disponibles %}
-                            <li class="mb-2 flex items-center gap-2">
-                                <span class="font-bold">{{ eq.nom }}</span>
-                                <span id="etat-equipement-{{ eq.id }}" class="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{{ eq.etat }}</span>
-                                <span id="presence-equipement-{{ eq.id }}" class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
-                            </li>
-                        {% endfor %}
+                        <ul class="inline-block text-left">
+                            {% for eq in disponibles %}
+                                <li class="mb-2 flex items-center gap-2 justify-center">
+                                    <span class="font-bold">{{ eq.nom }}</span>
+                                    <span id="etat-equipement-{{ eq.id }}" class="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{{ eq.etat }}</span>
+                                    <span id="presence-equipement-{{ eq.id }}" class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Présence: {{ eq.isPhysiquementPresent() ? 'Oui' : 'Non' }}</span>
+                                </li>
+                            {% endfor %}
                         </ul>
                     </div>
 
                     <!-- Pris -->
                     <div class="bg-white rounded-xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-blue-700 mb-4">Équipements pris</h2>
+                        <h2 class="text-lg font-semibold text-blue-700 mb-4 text-center">Équipements pris</h2>
                         {% set reserves = equipements|filter(e => e.etat == 'Pris') %}
-                        <ul class="divide-y divide-gray-200">
+                        <ul class="divide-y divide-gray-200 inline-block text-left w-full">
                             {% if reserves|length > 0 %}
                                 {% for eq in reserves %}
                                     <li class="py-3 flex justify-between items-center">
@@ -77,29 +46,11 @@
                         </ul>
                     </div>
 
-                    <!-- Maintenance -->
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-yellow-700 mb-4">Équipements en maintenance</h2>
-                        {% set en_maintenance = equipements|filter(e => e.etat == 'Maintenance') %}
-                        <ul class="divide-y divide-gray-200">
-                            {% if en_maintenance|length > 0 %}
-                                {% for eq in en_maintenance %}
-                                    <li class="py-3 flex justify-between items-center">
-                                        <span class="text-gray-800 font-medium">{{ eq.nom }}</span>
-                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">En maintenance</span>
-                                    </li>
-                                {% endfor %}
-                            {% else %}
-                                <li class="text-gray-500">Aucun équipement en maintenance.</li>
-                            {% endif %}
-                        </ul>
-                    </div>
-
                     <!-- Déclassés -->
                     <div class="bg-white rounded-xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-red-700 mb-4">Équipements déclassés</h2>
+                        <h2 class="text-lg font-semibold text-red-700 mb-4 text-center">Équipements déclassés</h2>
                         {% set declasses = equipements|filter(e => e.etat|lower == 'déclassé' or e.etat|lower == 'declasser') %}
-                        <ul class="divide-y divide-gray-200">
+                        <ul class="divide-y divide-gray-200 inline-block text-left w-full">
                             {% if declasses|length > 0 %}
                                 {% for eq in declasses %}
                                     <li class="py-3 flex justify-between items-center">
@@ -113,80 +64,70 @@
                         </ul>
                     </div>
                 </div>
+                <!-- Actions rapides -->
+{#                <div class="mb-10">#}
+{#                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Actions rapides</h2>#}
+{#                    <div class="flex flex-wrap gap-4">#}
+{#                        <a href="{{ path('admin_user_index') }}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 shadow">#}
+{#                            <i class="fas fa-user-plus mr-2"></i>Gerer utilisateur#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
 
-                <!-- Suivi des équipements en temps réel -->
-                <div class="mb-12">
-                    <h2 class="text-xl font-bold mb-4 text-green-700">Suivi des équipements en temps réel</h2>
-                    <div id="realtime-equipements-dashboard" class="mb-8"></div>
-                </div>
+                <!-- Statistiques et Graphiques -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 text-center">
+                    <!-- Statistiques brèves -->
+                    <div class="space-y-6">
 
-                <!-- Dernières valeurs des capteurs -->
-                <div class="mb-10">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Dernières valeurs des capteurs</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {% for equipement in equipements %}
-                            <div class="bg-white rounded-xl shadow p-6">
-                                <div class="font-bold text-blue-700 mb-2">{{ equipement.nom }}</div>
-                                <div class="text-sm text-gray-600 mb-1">Poids : <span class="font-mono">{{ equipement.poidsActuel ?? 'N/A' }}</span> g</div>
-                                <div class="text-sm text-gray-600 mb-1">Distance : <span class="font-mono">{{ equipement.distanceActuelle ?? 'N/A' }}</span> cm</div>
-                                <div class="text-sm text-gray-600 mb-1">RFID : <span class="font-mono">{{ equipement.rfidTag ?? 'N/A' }}</span></div>
-                                <div class="text-xs text-gray-400 mt-2">Dernière mise à jour : {{ equipement.derniereMiseAJour ? equipement.derniereMiseAJour|date('d/m/Y H:i:s') : 'N/A' }}</div>
-                            </div>
-                        {% else %}
-                            <div class="text-gray-500">Aucun équipement trouvé.</div>
-                        {% endfor %}
+                        <div class="bg-white rounded-xl shadow p-6">
+                            <canvas id="equipementChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Répartition graphique -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4 text-gray-700 text-center">Répartition des équipements</h2>
+                        <canvas id="equipementPieChart" style="max-width:350px;max-height:350px;"></canvas>
                     </div>
                 </div>
 
-                <!-- Suivi intelligent des équipements en temps réel -->
-                <div class="mb-12 w-full px-2">
-                    <h2 class="text-2xl font-bold mb-6 text-green-700 flex items-center gap-2">
-                        <i class="fa fa-microchip"></i> Suivi intelligent des équipements en temps réel
-                    </h2>
-                    <div id="dashboard-realtime-equipements" class="w-full"></div>
-                </div>
+
                 <!-- Graphique d'utilisation des équipements par jour (global) -->
-                <div class="mb-12 w-full px-2">
-                    <h2 class="text-2xl font-bold mb-6 text-indigo-700 flex items-center gap-2">
+                <div class="mb-12 w-full px-2 text-center">
+                    <h2 class="text-2xl font-bold mb-6 text-indigo-700 flex items-center gap-2 justify-center">
                         <i class="fa fa-calendar"></i> Utilisation quotidienne des équipements (global)
                     </h2>
                     <canvas id="dashboardEquipementUsagePerDayChart" style="max-width:900px;max-height:400px;"></canvas>
                 </div>
-
-                <!-- Filtres d'équipements par heures d'utilisation -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Filtrer les équipements selon les heures d'utilisation</h2>
-                    <div class="flex flex-wrap gap-4 mb-4">
-                        <button onclick="showEquipements('0_30h')" class="px-4 py-2 bg-gray-600 text-white rounded shadow">0h - 29h</button>
-                        <button onclick="showEquipements('30h')" class="px-4 py-2 bg-blue-600 text-white rounded shadow">30h - 49h</button>
-                        <button onclick="showEquipements('50h')" class="px-4 py-2 bg-green-600 text-white rounded shadow">50h - 79h</button>
-                        <button onclick="showEquipements('80h')" class="px-4 py-2 bg-yellow-500 text-white rounded shadow">80h - 99h</button>
-                        <button onclick="showEquipements('100h')" class="px-4 py-2 bg-red-600 text-white rounded shadow">100h et plus</button>
-                    </div>
-                    <div id="equipements-filtre-resultat" class="mt-4"></div>
+                <div class="mb-12 w-full px-2 text-center">
+                    <h2 class="text-2xl font-bold mb-6 text-green-700 flex items-center gap-2 justify-center">
+                        <i class="fa fa-microchip"></i> Suivi intelligent des équipements en temps réel
+                    </h2>
+                    <div id="realtime-equipements-dashboard" class="w-full"></div>
                 </div>
+
             </div>
         </main>
     </div>
 
     <script>
+
         const ctx = document.getElementById('equipementChart').getContext('2d');
         const pieCtx = document.getElementById('equipementPieChart').getContext('2d');
 
         const disponibles = {{ disponibles|length }};
         const pris = {{ reserves|length }};
-        const maintenance = {{ en_maintenance|length }};
         const declasses = {{ declasses|length }};
 
         // Bar Chart
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Disponibles', 'Pris', 'Maintenance', 'Déclassés'],
+                labels: ['Disponibles', 'Pris', 'Déclassés'],
                 datasets: [{
-                    label: '����quipements',
-                    data: [disponibles, pris, maintenance, declasses],
-                    backgroundColor: ['#10b981', '#2563eb', '#f59e42', '#dc2626']
+                    label: 'equipements',
+                    data: [disponibles, pris, declasses],
+                    backgroundColor: ['#10b981', '#2563eb', '#dc2626']
                 }]
             },
             options: {
@@ -207,10 +148,10 @@
         new Chart(pieCtx, {
             type: 'pie',
             data: {
-                labels: ['Disponibles', 'Pris', 'Maintenance', 'Déclassés'],
+                labels: ['Disponibles', 'Pris', 'Déclassés'],
                 datasets: [{
-                    data: [disponibles, pris, maintenance, declasses],
-                    backgroundColor: ['#10b981', '#2563eb', '#f59e42', '#dc2626']
+                    data: [disponibles, pris, declasses],
+                    backgroundColor: ['#10b981', '#2563eb', '#dc2626']
                 }]
             },
             options: {
@@ -320,38 +261,6 @@
             }
         });
 
-        // Filtres JS
-        const equipements0_30h = {{ equipements0_30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements30h = {{ equipements30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements50h = {{ equipements50h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements80h = {{ equipements80h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements100h = {{ equipements100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipementsPlus100h = {{ equipementsPlus100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        function showEquipements(type) {
-            let html = '';
-            let list = [];
-            if(type === '0_30h') {
-                list = equipements0_30h;
-                html = '<b>Équipements entre 0h et 29h :</b>';
-            } else if(type === '30h') {
-                list = equipements30h;
-                html = '<b>Équipements entre 30h et 49h :</b>';
-            } else if(type === '50h') {
-                list = equipements50h;
-                html = '<b>Équipements entre 50h et 79h :</b>';
-            } else if(type === '80h') {
-                list = equipements80h;
-                html = '<b>Équipements entre 80h et 99h :</b>';
-            } else if(type === '100h') {
-                list = equipements100h;
-                html = '<b>Équipements à partir de 100h :</b>';
-            }
-            if(list.length === 0) {
-                html += '<div class="text-gray-500">Aucun équipement concerné.</div>';
-            } else {
-                html += '<ul>' + list.map(e => `<li><span class='font-bold'>${e.nom}</span> — <span class='text-blue-700'>${e.heures} h</span></li>`).join('') + '</ul>';
-            }
-            document.getElementById('equipements-filtre-resultat').innerHTML = html;
-        }
+
     </script>
 {% endblock %}

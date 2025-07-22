@@ -196,4 +196,50 @@ class PriseEquipement extends AbstractController
         }
         return new RedirectResponse($this->generateUrl('admin_dashboard'));
     }
+
+    #[Route('/api/equipements/prise', name: 'api_equipement_prise', methods: ['POST'])]
+    public function priseApi(Request $request, EntityManagerInterface $em, EquipementRepository $equipementRepository, ReservationRepository $reservationRepository): Response
+    {
+        $equipementId = $request->request->get('equipement_id');
+        $nom = $request->request->get('nom');
+        $postnom = $request->request->get('postnom');
+        $prenom = $request->request->get('prenom');
+        $promotion = $request->request->get('promotion');
+        $filiere = $request->request->get('filiere');
+        $email = $request->request->get('email');
+        $telephone = $request->request->get('telephone');
+        $user = $this->getUser();
+        if (!$equipementId || !$nom || !$postnom || !$prenom || !$promotion || !$filiere || !$email || !$telephone) {
+            return $this->json(['success' => false, 'message' => 'Champs manquants'], 400);
+        }
+        $equipement = $equipementRepository->find($equipementId);
+        if (!$equipement || $equipement->getEtat() !== Equipement::ETAT_DISPONIBLE) {
+            return $this->json(['success' => false, 'message' => 'Équipement non disponible'], 400);
+        }
+        $equipement->setEtat(Equipement::ETAT_PRIS);
+        $em->persist($equipement); // Ajouté pour s'assurer que l'état est bien sauvegardé
+        $reservation = new Reservation();
+        $reservation->setNomPersonne($nom);
+        $reservation->setPostnomPersonne($postnom);
+        $reservation->setPrenomPersonne($prenom);
+        $reservation->setPromotion($promotion);
+        $reservation->setFiliere($filiere);
+        $reservation->setEmailPersonne($email);
+        $reservation->setTelephone($telephone);
+        $reservation->setEquipement($equipement);
+        $reservation->setDateReservation(new \DateTime());
+        $reservation->setDateRemisePrevue((new \DateTime())->modify('+24 hours'));
+        $reservation->setActive(true);
+        if ($user instanceof \App\Entity\User) {
+            $reservation->setUser($user);
+        }
+        $em->persist($reservation);
+        $em->flush();
+        return $this->json([
+            'success' => true,
+            'message' => 'Prise enregistrée',
+            'equipement_id' => $equipement->getId(),
+            'etat' => $equipement->getEtat()
+        ]);
+    }
 }

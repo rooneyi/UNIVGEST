@@ -18,7 +18,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminController extends AbstractController
 {
     #[Route('/dashboard', name: 'admin_dashboard')]
-    #[IsGranted('ROLE_ADMIN')]
     #[IsGranted('ROLE_GESTIONNAIRE')]
     public function dashboard(Request $request,UserRepository $userRepository, EquipementRepository $equipementRepository, ReservationRepository $reservationRepository): Response
     {
@@ -94,7 +93,7 @@ class AdminController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function userIndex(UserRepository $userRepository): Response
     {
-        $users = $userRepository->findBy(["roles" => ["ROLE_GESTIONNAIRE"]]);
+        $users = $userRepository->findAll();
         return $this->render('admin/user/index.html.twig', [
             'users' => $users
         ]);
@@ -130,12 +129,67 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/user/edit/{id}', name: 'admin_user_edit')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
+    {
+        $error = null;
+        if ($request->isMethod('POST')) {
+            $email = $request->request->get('email');
+            $role = $request->request->get('role');
+            $roles = $role ? [$role] : [];
+            $password = $request->request->get('password');
+            if (!preg_match('/^[^@]+@udbl.ac\.cd$/', $email)) {
+                $error = "L'adresse email doit se terminer par @udbl.ac.cd";
+            } elseif ($password && strlen($password) < 6) {
+                $error = "Le mot de passe doit contenir au moins 6 caractères.";
+            } else {
+                $user->setEmail($email);
+                if (!empty($roles)) {
+                    // Ne mettre à jour les rôles que si le rôle a changé
+                    if ($user->getRoles() !== $roles) {
+                        $user->setRoles($roles);
+                    }
+                }
+                if ($password) {
+                    $user->setPassword($hasher->hashPassword($user, $password));
+                }
+                $em->persist($user);
+                $em->flush();
+                $this->addFlash('success', 'Utilisateur modifié avec succès.');
+                return $this->redirectToRoute('admin_user_index');
+            }
+        }
+        return $this->render('admin/user/edit.html.twig', [
+            'user' => $user,
+            'error' => $error
+        ]);
+    }
 
     #[Route('/delete/{id}', name: 'admin_user_delete')]
+    #[IsGranted('ROLE_ADMIN')]
     public function delete(User $user, EntityManagerInterface $em): Response
     {
         $em->remove($user);
         $em->flush();
-        return $this->redirectToRoute('admin_dashboard');
+        return $this->redirectToRoute('admin_user_index');
+    }
+
+
+    #[Route('/maintenance', name: 'admin_maintenance')]
+    #[IsGranted('ROLE_GESTIONNAIRE')]
+    public function maintenance(EquipementRepository $equipementRepository): Response
+    {
+        // On considère qu'un équipement nécessite une maintenance s'il a plus de 100h d'utilisation
+        $equipementsMaintenance = [];
+        foreach ($equipementRepository->findAll() as $equipement) {
+            $usage = $equipement->usage_hours ?? 0;
+            if ($usage >= 100) {
+                $equipementsMaintenance[] = $equipement;
+            }
+        }
+        return $this->render('maintenance.html.twig', [
+            'equipementsMaintenance' => $equipementsMaintenance,
+        ]);
     }
 }

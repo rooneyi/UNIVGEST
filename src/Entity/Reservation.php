@@ -54,6 +54,9 @@ class Reservation
     #[ORM\Column(type: 'datetime', nullable: true)]
     private $dateRemisePrevue;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private $dateRetour;
+
     public function getId(): ?int { return $this->id; }
     public function getUser(): ?User { return $this->user; }
     public function setUser(User $user): self { $this->user = $user; return $this; }
@@ -93,6 +96,16 @@ class Reservation
     public function setDateRemisePrevue(?\DateTimeInterface $dateRemisePrevue): self
     {
         $this->dateRemisePrevue = $dateRemisePrevue;
+        return $this;
+    }
+    public function getDateRetour(): ?\DateTimeInterface
+    {
+        return $this->dateRetour;
+    }
+
+    public function setDateRetour(?\DateTimeInterface $dateRetour): self
+    {
+        $this->dateRetour = $dateRetour;
         return $this;
     }
 }

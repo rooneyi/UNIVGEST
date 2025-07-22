@@ -42,14 +42,14 @@ class CreateAdminCommand extends Command
             return Command::FAILURE;
         }
 
-        if (!preg_match('/^[^@]+@esisalama\.org$/', $email)) {
+        if (!preg_match('/^[^@]+@udbl.ac\.cd$/', $email)) {
             $output->writeln('<error>L\'adresse email doit se terminer par @esisalama.org</error>');
             return Command::FAILURE;
         }
 
         $user = new User();
         $user->setEmail($email);
-        $user->setRoles(['ROLE_ADMIN','ROLE_GESTIONNAIRE']);
+        $user->setRoles(['ROLE_GESTIONNAIRE']);
         $user->setPassword($this->hasher->hashPassword($user, $password));
         $this->em->persist($user);
         $this->em->flush();

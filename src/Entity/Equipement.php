@@ -235,4 +235,21 @@ class Equipement
     {
         return $this->reservations;
     }
+
+    /**
+     * Calcule le temps total d'utilisation (en heures) de l'équipement
+     */
+    public function getTempsUtilisationTotal(): float
+    {
+        $total = 0;
+        foreach ($this->getReservations() as $reservation) {
+            $debut = $reservation->getDateReservation();
+            $fin = $reservation->getDateRetour();
+            if ($debut && $fin) {
+                $interval = $fin->getTimestamp() - $debut->getTimestamp();
+                $total += $interval / 3600; // en heures
+            }
+        }
+        return round($total, 2);
+    }
 }

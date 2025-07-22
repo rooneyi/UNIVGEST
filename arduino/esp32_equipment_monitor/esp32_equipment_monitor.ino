@@ -181,7 +181,7 @@ void loop() {
     poids = balance.get_units(10) * facteurCalibration;
     Serial.print("⚖️ Poids calibré : ");
     Serial.print(poids, 2);
-    Serial.println(" g");
+    Serial.println("g");
   } else {
     Serial.println("❌ Capteur de poids non prêt !");
   }

@@ -20,9 +20,10 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     {
         $roles = $token->getRoleNames();
         if (in_array('ROLE_ADMIN', $roles, true)) {
+            return new RedirectResponse($this->router->generate('admin_user_index'));
+        } elseif (in_array('ROLE_GESTIONNAIRE', $roles, true)) {
             return new RedirectResponse($this->router->generate('admin_dashboard'));
         }
-        return new RedirectResponse($this->router->generate('reservation_index'));
+        return new RedirectResponse($this->router->generate('app_home'));
     }
 }
-
