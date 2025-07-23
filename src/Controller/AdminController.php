@@ -80,12 +80,7 @@ class AdminController extends AbstractController
             'filter' => $filter,
             'equipements' => $equipementRepository->findAll(),
             'equipementUsagePerDay' => $equipementUsagePerDay,
-            'equipements0_30h' => $equipements0_30h,
-            'equipements30h' => $equipements30h,
-            'equipements50h' => $equipements50h,
-            'equipements80h' => $equipements80h,
-            'equipements100h' => $equipements100h,
-            'equipementsPlus100h' => $equipementsPlus100h,
+
         ]);
     }
 
@@ -176,20 +171,5 @@ class AdminController extends AbstractController
     }
 
 
-    #[Route('/maintenance', name: 'admin_maintenance')]
-    #[IsGranted('ROLE_GESTIONNAIRE')]
-    public function maintenance(EquipementRepository $equipementRepository): Response
-    {
-        // On considère qu'un équipement nécessite une maintenance s'il a plus de 100h d'utilisation
-        $equipementsMaintenance = [];
-        foreach ($equipementRepository->findAll() as $equipement) {
-            $usage = $equipement->usage_hours ?? 0;
-            if ($usage >= 100) {
-                $equipementsMaintenance[] = $equipement;
-            }
-        }
-        return $this->render('maintenance.html.twig', [
-            'equipementsMaintenance' => $equipementsMaintenance,
-        ]);
-    }
+
 }
