@@ -83,6 +83,14 @@ class ApiController extends AbstractController
         $equipement->setDerniereMiseAJour(new \DateTime());
         $equipementRepo->getEntityManager()->flush();
 
+        // Ajout de la logique d'alerte RFID
+        $alerteRfid = false;
+        $messageAlerte = null;
+        if (!isset($data['rfid_tag']) || $data['rfid_tag'] === 'N/A' || empty($data['rfid_tag']) || $data['rfid_tag'] === '00000000') {
+            $alerteRfid = true;
+            $messageAlerte = "Aucun tag RFID détecté pour cet équipement !";
+        }
+
         try {
             $resultatDetection = $this->detectionService->traiterDonneesESP32($id, $data);
 
@@ -95,7 +103,9 @@ class ApiController extends AbstractController
                     'disponible' => $equipement->isDisponible(),
                     'etat' => $equipement->getEtat(),
                     'physically_present' => $equipement->isPhysiquementPresent()
-                ]
+                ],
+                'alerte_rfid' => $alerteRfid,
+                'message_alerte' => $messageAlerte
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([

@@ -246,14 +246,14 @@ function loadRealtimeEquipementsDashboard() {
             ` + (
               eq.compartiment == '1' ?
                 `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance1 || 'N/A'} cm
-                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance1 !== undefined && eq.distance1 < 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
-                    ${eq.distance1 !== undefined && eq.distance1 < 30 ? 'Indisponible' : 'Disponible'}
+                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance1 !== undefined && eq.distance1 > 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                    ${eq.distance1 !== undefined && eq.distance1 > 30 ? 'Indisponible' : 'Disponible'}
                   </span>
                 </span>` :
               eq.compartiment == '2' ?
                 `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance2 || 'N/A'} cm
-                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance2 !== undefined && eq.distance2 < 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
-                    ${eq.distance2 !== undefined && eq.distance2 < 30 ? 'Indisponible' : 'Disponible'}
+                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance2 !== undefined && eq.distance2 > 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                    ${eq.distance2 !== undefined && eq.distance2 > 30 ? 'Indisponible' : 'Disponible'}
                   </span>
                 </span>` :
                 `<span class="text-xs text-gray-600">Capteur Ultrasonic: N/A</span>`

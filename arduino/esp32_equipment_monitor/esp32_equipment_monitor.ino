@@ -33,6 +33,8 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);  // SDA, RST
 
 extern int equipementId; // Assure que la variable est globale
 
+String lastRfidTag = "N/A"; // Ajout d'une variable globale pour mémoriser le dernier badge
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -65,21 +67,24 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(relaisPin, OUTPUT);
 
-  digitalWrite(buzzerPin, LOW);
+
   digitalWrite(ledPin, LOW);
   digitalWrite(relaisPin, LOW);
 
   // === WiFi ===
   Serial.print("Connexion au WiFi");
+  digitalWrite(buzzerPin, HIGH); // Buzzer ON tant que pas connecté
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    digitalWrite(buzzerPin, HIGH); // Buzzer ON tant que pas connecté
   }
+  digitalWrite(buzzerPin, LOW); // Buzzer OFF une fois connecté
   Serial.println("\nConnecté au WiFi !");
   Serial.print("Adresse IP : ");
   Serial.println(WiFi.localIP());
-}
+  digitalWrite(buzzerPin, LOW);}
 
 void envoyerDonneesPourTousEquipements(float poids, float distance1, float distance2, String rfidTag) {
   if (WiFi.status() == WL_CONNECTED) {
@@ -97,14 +102,14 @@ void envoyerDonneesPourTousEquipements(float poids, float distance1, float dista
           envoyerDonneesVersAPI(id, rfidTag, poids, distance1, distance2);
         }
       } else {
-        Serial.println("❌ Erreur de parsing JSON équipements");
+        Serial.println(" Erreur de parsing JSON équipements");
       }
     } else {
-      Serial.println("❌ Erreur HTTP lors de la récupération des équipements");
+      Serial.println(" Erreur HTTP lors de la récupération des équipements");
     }
     http.end();
   } else {
-    Serial.println("❌ WiFi non connecté !");
+    Serial.println(" WiFi non connecté !");
   }
 }
 
@@ -142,6 +147,7 @@ void envoyerDonneesVersAPI(int equipementId, String rfidTag, float poids, float 
     http.end();
   } else {
     Serial.println(" WiFi non connecté !");
+
   }
 }
 
@@ -179,12 +185,65 @@ void loop() {
     Serial.print(poids, 2);
     Serial.println("g");
   } else {
-    Serial.println("Capteur de poids non prêt !");
+    Serial.println("Capteur de poids non present !");
   }
 
-  // Envoi des données à l'API sans RFID
-  String rfidTag = "N/A"; // RFID désactivé
-  envoyerDonneesPourTousEquipements(poids, distance1, distance2, rfidTag);
+  // === Lecture RFID ===
+  String rfidTag = "N/A";
+  bool rfidDetected = false;
+  if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+    rfidTag = "";
+    for (byte i = 0; i < mfrc522.uid.size; i++) {
+      rfidTag += String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
+      rfidTag += String(mfrc522.uid.uidByte[i], HEX);
+    }
+    rfidTag.toUpperCase();
+    Serial.print("Tag RFID détecté : ");
+    Serial.println(rfidTag);
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    rfidDetected = true;
+    lastRfidTag = rfidTag;
+  } else {
+    Serial.println("Aucun badge RFID détecté lors de ce cycle. On enverra N/A.");
+    lastRfidTag = "N/A";
+  }
+
+  // Envoi des données à l'API avec la valeur courante
+  if (lastRfidTag == "N/A") {
+    Serial.println("Aucun badge RFID détecté, envoi de N/A à l'API.");
+  } else {
+    Serial.print("Badge RFID détecté, valeur envoyée à l'API : ");
+    Serial.println(lastRfidTag);
+  }
+  envoyerDonneesPourTousEquipements(poids, distance1, distance2, lastRfidTag);
+
+  // Si aucun tag RFID détecté, on n'envoie plus d'alerte séparée, l'API gère déjà l'alerte via rfid_tag="N/A"
+  // if (!rfidDetected) {
+  //   Serial.println("Préparation de l'envoi d'une alerte RFID à l'API...");
+  //   if (WiFi.status() == WL_CONNECTED) {
+  //     HTTPClient http;
+  //     String url = "http://172.29.16.201:8000/api/equipement/alerte-absence-rfid";
+  //     http.begin(url);
+  //     http.addHeader("Content-Type", "application/json");
+  //     String json = "{\"message\":\"Aucun tag RFID détecté à l'emplacement !\"}";
+  //     int httpResponseCode = http.POST(json);
+  //     if (httpResponseCode > 0) {
+  //       Serial.println("Alerte RFID envoyée à la plateforme.");
+  //     } else {
+  //       Serial.print("Erreur lors de l'envoi de l'alerte RFID. Code HTTP : ");
+  //       Serial.println(httpResponseCode);
+  //     }
+  //     http.end();
+  //   }
+  // }
+
+  // Gestion du buzzer selon l'état WiFi
+  if (WiFi.status() == WL_CONNECTED) {
+    digitalWrite(buzzerPin, LOW); // Buzzer OFF si connecté
+  } else {
+    digitalWrite(buzzerPin, HIGH); // Buzzer ON si déconnecté
+  }
 
   delay(5000);  // Pause avant prochaine mesure
 }
