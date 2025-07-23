@@ -153,4 +153,13 @@ class AdminEquipementController extends AbstractController
         $this->addFlash('success', 'Équipement déclassé avec succès.');
         return $this->redirectToRoute('admin_equipement_index');
     }
+
+    #[Route('/placer-maintenance/{id}', name: 'admin_equipement_placer_maintenance', methods: ['POST'])]
+    public function placerEnMaintenance(Equipement $equipement, EntityManagerInterface $em): Response
+    {
+        $equipement->setEtat('Maintenance');
+        $em->flush();
+        $this->addFlash('success', 'Équipement placé en maintenance avec succès.');
+        return $this->redirectToRoute('admin_equipement_index');
+    }
 }

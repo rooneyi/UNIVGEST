@@ -252,16 +252,20 @@ class Equipement
 
     /**
      * Calcule le temps total d'utilisation (en heures) de l'équipement
+     * Utilise la date de remise réelle (dateRemise) si disponible, sinon dateRetour
      */
     public function getTempsUtilisationTotal(): float
     {
         $total = 0;
         foreach ($this->getReservations() as $reservation) {
             $debut = $reservation->getDateReservation();
-            $fin = $reservation->getDateRetour();
+            // Prend la date de remise réelle si dispo, sinon la date de retour (pour compatibilité)
+            $fin = $reservation->getDateRemise() ?: $reservation->getDateRetour();
             if ($debut && $fin) {
                 $interval = $fin->getTimestamp() - $debut->getTimestamp();
-                $total += $interval / 3600; // en heures
+                if ($interval > 0) {
+                    $total += $interval / 3600; // en heures
+                }
             }
         }
         return round($total, 2);

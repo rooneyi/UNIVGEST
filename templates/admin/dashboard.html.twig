@@ -111,13 +111,12 @@
     </div>
 
     <script>
-
-        const ctx = document.getElementById('equipementChart').getContext('2d');
-        const pieCtx = document.getElementById('equipementPieChart').getContext('2d');
-
         const disponibles = {{ disponibles|length }};
         const pris = {{ reserves|length }};
         const declasses = {{ declasses|length }};
+
+        const ctx = document.getElementById('equipementChart').getContext('2d');
+        const pieCtx = document.getElementById('equipementPieChart').getContext('2d');
 
         // Bar Chart
         new Chart(ctx, {
@@ -171,15 +170,18 @@
               let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">';
               data.forEach(eq => {
                 if (eq.etat && eq.etat.toLowerCase() !== 'disponible') return;
-                let poids = eq.sensor_data && eq.sensor_data.weight !== undefined
-                  ? (parseFloat(eq.sensor_data.weight).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}))
-                  : '-';
+                let poidsValeur = (eq.weight != null && eq.weight !== '') ? parseFloat(eq.weight) :
+                  (eq.sensor_data && eq.sensor_data.weight != null && eq.sensor_data.weight !== '' ? parseFloat(eq.sensor_data.weight) : null);
+                let etatPoids = (poidsValeur && poidsValeur <= 355005.09) ? 'Disponible' : 'Indisponible';
+                let badgePoidsClass = (poidsValeur && poidsValeur <= 355005.09) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
                 html += `
                   <div class="bg-white rounded-xl shadow p-4 min-h-[200px] mb-4 flex flex-col gap-2" data-equipement-id="${eq.id}">
                     <span class="font-bold text-base text-green-700">${eq.nom}</span>
                     <span class="text-xs text-gray-600">Code: ${eq.code}</span>
                     <span class="text-xs text-gray-600">RFID: ${eq.rfid_tag || 'N/A'}</span>
-                    <span class="text-xs text-gray-600">Poids: ${poids} g</span>
+                    ${eq.compartiment == '1' ? `<span class=\"text-xs text-gray-600\">Poids:
+      <span class=\"inline-block px-2 py-1 rounded text-xs font-semibold ${badgePoidsClass}\">${etatPoids}</span>
+    </span>` : ''}
                     ` + (
                       eq.compartiment == '1' ?
                         `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance1 || 'N/A'} cm
@@ -214,7 +216,7 @@
         setInterval(function() {
             fetch('/api/equipement/status/{{ eq.id }}')
                 .then(r => r.json())
-                .then(data => {
+                .then(function(data) {
                     document.getElementById('etat-equipement-{{ eq.id }}').textContent = data.etat;
                     document.getElementById('presence-equipement-{{ eq.id }}').textContent = 'Présence: ' + (data.physically_present ? 'Oui' : 'Non');
                 });

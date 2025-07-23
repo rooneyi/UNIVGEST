@@ -50,12 +50,12 @@
                     </div>
                     <div class="text-gray-600 text-sm">Pris</div>
                 </div>
-                <div class="bg-white rounded-xl shadow p-6 text-center">
-                    <div class="text-4xl font-bold text-orange-500 mb-1">
-                        <i class="fa fa-wrench mr-2"></i>{{ totalMaintenance ?? equipements|filter(e => e.etat matches '/Maintenance/i')|length }}
-                    </div>
-                    <div class="text-gray-600 text-sm">En maintenance</div>
-                </div>
+{#                <div class="bg-white rounded-xl shadow p-6 text-center">#}
+{#                    <div class="text-4xl font-bold text-orange-500 mb-1">#}
+{#                        <i class="fa fa-wrench mr-2"></i>{{ totalMaintenance ?? equipements|filter(e => e.etat matches '/Maintenance/i')|length }}#}
+{#                    </div>#}
+{#                    <div class="text-gray-600 text-sm">En maintenance</div>#}
+{#                </div>#}
 
             </div>
 
@@ -71,15 +71,16 @@
                                 <li class="py-4 flex flex-col gap-2">
                                     <span class="font-bold text-green-700 text-base">{{ eq.nom }}</span>
                                     <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
-                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
-                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
-                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
-                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+{#                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>#}
+{#                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>#}
+{#                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>#}
+{#                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>#}
                                     <span class="text-xs text-gray-600">Compartiment : {{ eq.compartiment ?? 'Non défini' }}</span>
-                                    <span class="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">Disponible</span>
-                                    <a href="{{ path('admin_equipement_edit', {'id': eq.id}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded mt-2">Modifier</a>
                                     <div class="flex gap-2 mt-2">
-                                        <button type="button" onclick="openGlobalModal({{ eq.id }})" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded">Prendre</button>
+                                        <a href="{{ path('admin_equipement_edit', {'id': eq.id}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">Modifier</a>
+                                        <form method="post" action="{{ path('admin_equipement_placer_maintenance', {'id': eq.id}) }}" class="inline">
+                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded">Placer en maintenance</button>
+                                        </form>
                                         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
                                     </div>
                                 </li>
@@ -99,10 +100,10 @@
                                 <li class="py-4 flex flex-col gap-2">
                                     <span class="font-bold text-blue-700 text-base">{{ eq.nom }}</span>
                                     <span class="text-xs text-gray-600">Code: {{ eq.code }}</span>
-                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>
-                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>
-                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>
-                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>
+{#                                    <span class="text-xs text-gray-600">RFID: {{ eq.rfidTag ?? 'N/A' }}</span>#}
+{#                                    <span class="text-xs text-gray-600">Poids: {{ eq.poidsActuel ?? 'N/A' }} g</span>#}
+{#                                    <span class="text-xs text-gray-600">Distance 1: {{ eq.distance1 ?? 'N/A' }} cm</span>#}
+{#                                    <span class="text-xs text-gray-600">Distance 2: {{ eq.distance2 ?? 'N/A' }} cm</span>#}
                                     <span class="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">Pris</span>
                                     <div class="flex gap-2 mt-2">
                                         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Déclasser</button>
@@ -142,7 +143,7 @@
                 <h2 class="text-2xl font-bold mb-6 text-green-700 flex items-center gap-2">
                     <i class="fa fa-microchip"></i> Suivi intelligent des équipements en temps réel
                 </h2>
-                <div id="realtime-equipements" class="w-full"></div>
+                <div id="realtime-equipements-dashboard" class="w-full"></div>
             </div>
         </main>
     </div>
@@ -198,7 +199,7 @@
             <input type="email" name="email" class="block w-full border border-gray-300 rounded px-3 py-2" required />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Numero de téléphone</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Numero de tél��phone</label>
             <input type="tel" name="telephone" class="block w-full border border-gray-300 rounded px-3 py-2" required />
           </div>
           <button type="submit" class="inline-flex items-center gap-x-2 rounded-full border border-green-700 bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 hover:border-green-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 transition-all duration-150">
@@ -221,44 +222,56 @@ function getBadgeColor(etat, isNotRemis) {
   if (etat.toLowerCase().includes('déclassé') || etat.toLowerCase().includes('declasser')) return 'bg-red-500';
   return 'bg-gray-400';
 }
-function refreshEquipementsRealtime() {
+
+// SUIVI EN TEMPS REEL (identique dashboard)
+function loadRealtimeEquipementsDashboard() {
   fetch('/api/equipements/realtime')
     .then(response => response.json())
     .then(data => {
-      let html = '';
+      let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">';
       data.forEach(eq => {
-        let isNotRemis = false;
-        if (eq.etat && eq.etat.toLowerCase() === 'disponible' && ((eq.distance1 !== undefined && eq.distance1 < 30) || (eq.distance2 !== undefined && eq.distance2 < 30))) {
-          isNotRemis = true;
-        }
-        let poids = eq.sensor_data && eq.sensor_data.weight !== undefined
-          ? (parseFloat(eq.sensor_data.weight).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}))
-          : '-';
+        if (eq.etat && eq.etat.toLowerCase() !== 'disponible') return;
+        let poidsValeur = (eq.weight != null && eq.weight !== '') ? parseFloat(eq.weight) :
+          (eq.sensor_data && eq.sensor_data.weight != null && eq.sensor_data.weight !== '' ? parseFloat(eq.sensor_data.weight) : null);
+        let etatPoids = (poidsValeur && poidsValeur <= 355005.09) ? 'Disponible' : 'Indisponible';
+        let badgePoidsClass = (poidsValeur && poidsValeur <= 355005.09) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
         html += `
-          <li class="py-4 flex flex-col gap-2 bg-white rounded-xl shadow p-4 min-h-[200px]" data-equipement-id="${eq.id}">
-            <span class="font-bold text-base ${eq.etat === 'Disponible' ? 'text-green-700' : (eq.etat === 'Pris' ? 'text-blue-700' : (eq.etat && eq.etat.toLowerCase().includes('maintenance') ? 'text-orange-700' : 'text-red-800'))}">${eq.nom}</span>
+          <div class="bg-white rounded-xl shadow p-4 min-h-[200px] mb-4 flex flex-col gap-2" data-equipement-id="${eq.id}">
+            <span class="font-bold text-base text-green-700">${eq.nom}</span>
             <span class="text-xs text-gray-600">Code: ${eq.code}</span>
             <span class="text-xs text-gray-600">RFID: ${eq.rfid_tag || 'N/A'}</span>
-            <span class="text-xs text-gray-600">Poids: ${poids} g</span>
-            <span class="text-xs text-gray-600">Distance 1: ${eq.distance1 || 'N/A'} cm</span>
-            <span class="text-xs text-gray-600">Distance 2: ${eq.distance2 || 'N/A'} cm</span>
-            <span class="text-xs text-gray-600">Compartiment : ` +
-              (eq.distance1 !== undefined && eq.distance1 !== null ? `Compartiment 1 (${eq.distance1} cm)` :
-                (eq.distance2 !== undefined && eq.distance2 !== null ? `Compartiment 2 (${eq.distance2} cm)` : 'Non défini')) +
+            ${eq.compartiment == '1' ? `<span class=\"text-xs text-gray-600\">Poids:
+  <span class=\"inline-block px-2 py-1 rounded text-xs font-semibold ${badgePoidsClass}\">${etatPoids}</span>
+</span>` : ''}
+            ` + (
+              eq.compartiment == '1' ?
+                `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance1 || 'N/A'} cm
+                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance1 !== undefined && eq.distance1 < 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                    ${eq.distance1 !== undefined && eq.distance1 < 30 ? 'Indisponible' : 'Disponible'}
+                  </span>
+                </span>` :
+              eq.compartiment == '2' ?
+                `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance2 || 'N/A'} cm
+                  <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance2 !== undefined && eq.distance2 < 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                    ${eq.distance2 !== undefined && eq.distance2 < 30 ? 'Indisponible' : 'Disponible'}
+                  </span>
+                </span>` :
+                `<span class="text-xs text-gray-600">Capteur Ultrasonic: N/A</span>`
+            ) +
+            `<span class="text-xs text-gray-600">Compartiment : ` +
+              (eq.compartiment == '1' ? `Compartiment 1` :
+                (eq.compartiment == '2' ? `Compartiment 2` : 'Non défini')) +
             `</span>
-            <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.etat === 'Disponible' ? 'bg-green-100 text-green-700' : (eq.etat === 'Pris' ? 'bg-blue-100 text-blue-700' : (eq.etat && eq.etat.toLowerCase().includes('maintenance') ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'))}">${eq.etat}</span>
-            <div class="mt-2 flex gap-2">
-              <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${isNotRemis ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
-                ${isNotRemis ? '<i class=\'fa fa-exclamation-triangle\'></i> Capteur : Pas remis' : '<i class=\'fa fa-check\'></i> Capteur : OK'}
-              </span>
-            </div>
-          </li>
+          </div>
         `;
       });
-      document.getElementById('realtime-equipements').innerHTML = `<ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full'>${html}</ul>`;
+      html += '</div>';
+      document.getElementById('realtime-equipements-dashboard').innerHTML = html;
     });
 }
-setInterval(refreshEquipementsRealtime, 5000);
+loadRealtimeEquipementsDashboard();
+setInterval(loadRealtimeEquipementsDashboard, 10000);
+
 document.addEventListener('DOMContentLoaded', refreshEquipementsRealtime);
 function openGlobalModal(equipementId) {
     document.getElementById('global-modal').classList.remove('hidden');

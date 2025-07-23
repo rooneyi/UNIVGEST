@@ -182,6 +182,7 @@ class ApiController extends AbstractController
                 'physically_present' => $equipement->isPhysiquementPresent(),
                 'last_update' => $equipement->getDerniereMiseAJour()?->format('Y-m-d H:i:s'),
                 'poids' => $equipement->getPoidsActuel(),
+                'weight' => $equipement->getPoidsActuel(),
                 'distance1' => $equipement->getDistance1(),
                 'distance2' => $equipement->getDistance2(),
                 'rfid_tag' => $equipement->getRfidTag(),

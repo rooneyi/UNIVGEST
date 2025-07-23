@@ -28,6 +28,10 @@ class MaintenanceController extends AbstractController
 
         // Filtrage des équipements selon leur temps d'utilisation (exemple: usage_hours)
         $equipements = $equipementRepository->findAll();
+        // Calculer et injecter le temps d'utilisation réel pour chaque équipement
+        foreach ($equipements as $eq) {
+            $eq->usage_hours = $eq->getTempsUtilisationTotal();
+        }
         $equipements0_30h = [];
         $equipements30h = [];
         $equipements50h = [];
@@ -35,7 +39,7 @@ class MaintenanceController extends AbstractController
         $equipements100h = [];
         $equipementsPlus100h = [];
         foreach ($equipements as $eq) {
-            $usage = $eq->usage_hours ?? 0;
+            $usage = $eq->usage_hours;
             if ($usage >= 0 && $usage < 30) {
                 $equipements0_30h[] = $eq;
             } elseif ($usage >= 30 && $usage < 50) {

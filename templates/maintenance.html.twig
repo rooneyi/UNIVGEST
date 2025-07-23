@@ -10,22 +10,21 @@
             Voir les maintenances
         </a>
         {% if equipements is defined %}
+        {% set en_maintenance = equipements|filter(e => e.etat == 'Maintenance' or e.etat matches('/Maintenance/i')) %}
         <div class="bg-white rounded-xl shadow p-6">
             <h2 class="text-lg font-semibold text-yellow-700 mb-4">Équipements en maintenance</h2>
-            <!-- Filtres d'équipements par heures d'utilisation -->
             <div class="mb-8">
-                <h2 class="text-xl font-bold mb-4 text-indigo-700">Filtrer les équipements selon les heures d'utilisation</h2>
-                <div class="flex flex-wrap gap-4 mb-4">
-                    <button onclick="showEquipements('0_30h')" class="px-4 py-2 bg-gray-600 text-white rounded shadow">0h - 29h</button>
-                    <button onclick="showEquipements('30h')" class="px-4 py-2 bg-blue-600 text-white rounded shadow">30h - 49h</button>
-                    <button onclick="showEquipements('50h')" class="px-4 py-2 bg-green-600 text-white rounded shadow">50h - 79h</button>
-                    <button onclick="showEquipements('80h')" class="px-4 py-2 bg-yellow-500 text-white rounded shadow">80h - 99h</button>
-                    <button onclick="showEquipements('100h')" class="px-4 py-2 bg-red-600 text-white rounded shadow">100h et plus</button>
+                <h2 class="text-xl font-bold mb-4 text-indigo-700">Filtrer les équipements selon l'état</h2>
+                <div class="flex flex-wrap gap-4 mb-4 justify-center">
+                    <button onclick="showEquipements('critique')" class="px-4 py-2 bg-red-600 text-white rounded shadow">État critique (&ge; 60s)</button>
+                    <button onclick="showEquipements('attention')" class="px-4 py-2 bg-orange-500 text-white rounded shadow">Attention (40s - 60s)</button>
+                    <button onclick="showEquipements('prevention')" class="px-4 py-2 bg-yellow-400 text-black rounded shadow">Prévention (20s - 40s)</button>
+                    <button onclick="showEquipements('ok')" class="px-4 py-2 bg-green-500 text-white rounded shadow">Tout va bien (&lt; 20s)</button>
+                    <button onclick="showEquipements('all')" class="px-4 py-2 bg-gray-300 text-black rounded shadow">Tous</button>
                 </div>
                 <div id="equipements-filtre-resultat" class="mt-4"></div>
             </div>
-            {% set en_maintenance = equipements|filter(e => e.etat == 'Maintenance' or e.etat matches '/Maintenance/i') %}
-            <ul class="divide-y divide-gray-200">
+            <ul class="divide-y divide-gray-200 mb-8">
                 {% if en_maintenance|length > 0 %}
                     {% for eq in en_maintenance %}
                         <li class="py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
@@ -40,7 +39,6 @@
                     {% endfor %}
                 {% else %}
                     <li class="text-gray-500">Aucun équipement en maintenance.</li>
-
                 {% endif %}
             </ul>
         </div>
@@ -57,16 +55,40 @@
                     </thead>
                     <tbody>
                         {% for eq in equipements %}
-                        <tr>
+                        {% set total_seconds = (eq.getTempsUtilisationTotal() * 3600)|round(0, 'floor') %}
+                        {% set etat = '' %}
+                        {% if total_seconds >= 60 %}
+                            {% set etat = 'critique' %}
+                        {% elseif total_seconds >= 40 and total_seconds <= 60 %}
+                            {% set etat = 'attention' %}
+                        {% elseif total_seconds >= 20 and total_seconds <= 40 %}
+                            {% set etat = 'prevention' %}
+                        {% elseif total_seconds < 20 %}
+                            {% set etat = 'ok' %}
+                        {% endif %}
+                        <tr data-etat="{{ etat }}">
                             <td class="px-4 py-2">{{ eq.nom }}</td>
                             <td class="px-4 py-2">{{ eq.code }}</td>
-                            <td class="px-4 py-2">{{ eq.getTempsUtilisationTotal() }} h</td>
+                            <td class="px-4 py-2">
+                                {% set minutes = (total_seconds // 60) %}
+                                {% set seconds = (total_seconds % 60) %}
+                                {{ minutes }} min {{ seconds }} s
+                                {% if etat == 'critique' %}
+                                    <span class="ml-2 px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded">État critique</span>
+                                {% elseif etat == 'attention' %}
+                                    <span class="ml-2 px-2 py-1 bg-orange-500 text-white text-xs font-semibold rounded">Attention</span>
+                                {% elseif etat == 'prevention' %}
+                                    <span class="ml-2 px-2 py-1 bg-yellow-400 text-black text-xs font-semibold rounded">Prévention</span>
+                                {% elseif etat == 'ok' %}
+                                    <span class="ml-2 px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded">Tout va bien</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="mt-8">
+            <div class="mt-8 flex justify-center">
                 <canvas id="equipementUsageChart" style="max-width:700px;max-height:400px;"></canvas>
             </div>
         </div>
@@ -77,35 +99,44 @@
 </div>
     <script>
         // Filtres JS
-        const equipements0_30h = {{ equipements0_30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements30h = {{ equipements30h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements50h = {{ equipements50h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements80h = {{ equipements80h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipements100h = {{ equipements100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
-        const equipementsPlus100h = {{ equipementsPlus100h|map(e => { nom: e.nom, heures: e.usage_hours ?? 0 })|json_encode|raw }};
+        const equipements0_3s = {{ equipements|filter(e => (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') < 3)|map(e => { nom: e.nom, secondes: (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') })|json_encode|raw }};
+        const equipements3s = {{ equipements|filter(e => (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') >= 3 and (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') < 6)|map(e => { nom: e.nom, secondes: (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') })|json_encode|raw }};
+        const equipements6s = {{ equipements|filter(e => (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') >= 6 and (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') < 8)|map(e => { nom: e.nom, secondes: (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') })|json_encode|raw }};
+        const equipements8s = {{ equipements|filter(e => (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') >= 8 and (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') < 10)|map(e => { nom: e.nom, secondes: (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') })|json_encode|raw }};
+        const equipements10s = {{ equipements|filter(e => (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') >= 10)|map(e => { nom: e.nom, secondes: (e.getTempsUtilisationTotal() * 3600)|round(0, 'floor') })|json_encode|raw }};
+        // Prépare la liste JS des équipements avec nom et temps total en secondes
+        const equipements = [
+            {% for eq in equipements %}
+                {
+                    nom: {{ eq.nom|json_encode|raw }},
+                    secondes: {{ (eq.getTempsUtilisationTotal() * 3600)|round(0, 'floor') }}
+                },
+            {% endfor %}
+        ];
+
         function showEquipements(type) {
             let html = '';
             let list = [];
-            if(type === '0_30h') {
-                list = equipements0_30h;
-                html = '<b>Équipements entre 0h et 29h :</b>';
-            } else if(type === '30h') {
-                list = equipements30h;
-                html = '<b>Équipements entre 30h et 49h :</b>';
-            } else if(type === '50h') {
-                list = equipements50h;
-                html = '<b>Équipements entre 50h et 79h :</b>';
-            } else if(type === '80h') {
-                list = equipements80h;
-                html = '<b>Équipements entre 80h et 99h :</b>';
-            } else if(type === '100h') {
-                list = equipements100h;
-                html = '<b>Équipements à partir de 100h :</b>';
+            if(type === 'critique') {
+                list = equipements.filter(e => e.secondes >= 60);
+                html = '<b>Équipements en état critique (≥ 60s) :</b>';
+            } else if(type === 'attention') {
+                list = equipements.filter(e => e.secondes >= 40 && e.secondes <= 60);
+                html = '<b>Équipements en attention (40s - 60s) :</b>';
+            } else if(type === 'prevention') {
+                list = equipements.filter(e => e.secondes >= 20 && e.secondes <= 40);
+                html = '<b>Équipements en prévention (20s - 40s) :</b>';
+            } else if(type === 'ok') {
+                list = equipements.filter(e => e.secondes < 20);
+                html = '<b>Équipements en bon état (< 20s) :</b>';
+            } else if(type === 'all') {
+                list = equipements;
+                html = '<b>Tous les équipements :</b>';
             }
             if(list.length === 0) {
                 html += '<div class="text-gray-500">Aucun équipement concerné.</div>';
             } else {
-                html += '<ul>' + list.map(e => `<li><span class='font-bold'>${e.nom}</span> — <span class='text-blue-700'>${e.heures} h</span></li>`).join('') + '</ul>';
+                html += '<ul>' + list.map(e => `<li><span class='font-bold'>${e.nom}</span> — <span class='text-blue-700'>${e.secondes} s</span></li>`).join('') + '</ul>';
             }
             document.getElementById('equipements-filtre-resultat').innerHTML = html;
         }
@@ -134,6 +165,20 @@
                     y: { beginAtZero: true, title: { display: true, text: 'Heures' } }
                 }
             }
+        });
+
+        // Filtres par état
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-etat') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 
