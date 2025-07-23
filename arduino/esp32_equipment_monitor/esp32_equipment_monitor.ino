@@ -36,15 +36,15 @@ extern int equipementId; // Assure que la variable est globale
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("🔧 Initialisation...");
+  Serial.println("Initialisation...");
 
   // === Capteur de poids ===
   Serial.println("Initialisation du capteur de poids...");
   balance.begin(HX711_DT, HX711_SCK);
   if (!balance.is_ready()) {
-    Serial.println("❌ Erreur : HX711 non détecté !");
+    Serial.println("Erreur : HX711 non détecté !");
   } else {
-    Serial.println("✅ HX711 prêt.");
+    Serial.println("HX711 prêt.");
   }
 
   // === RFID ===
@@ -52,7 +52,7 @@ void setup() {
   SPI.begin();  // SCK=18, MISO=19, MOSI=23 (par défaut sur ESP32)
   mfrc522.PCD_Init();
   delay(50);
-  Serial.println("✅ RFID initialisé.");
+  Serial.println("RFID initialisé.");
 
   // === Capteur Ultrason ===
   pinMode(trigPin1, OUTPUT);
@@ -76,7 +76,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\n✅ Connecté au WiFi !");
+  Serial.println("\nConnecté au WiFi !");
   Serial.print("Adresse IP : ");
   Serial.println(WiFi.localIP());
 }
@@ -129,23 +129,19 @@ void envoyerDonneesVersAPI(int equipementId, String rfidTag, float poids, float 
     int httpResponseCode = http.POST(json);
     if (httpResponseCode > 0) {
       String response = http.getString();
-      Serial.print("✅ Données envoyées pour équipement ");
+      Serial.print(" Données envoyées pour équipement ");
       Serial.print(equipementId);
-      Serial.print(" ! Réponse API : ");
-      Serial.println(response);
+
     } else {
-      Serial.print("❌ Erreur HTTP pour équipement ");
+      Serial.print(" Erreur HTTP pour équipement ");
       Serial.print(equipementId);
-      Serial.print(" : ");
-      Serial.println(httpResponseCode);
-      Serial.print("Réponse brute : ");
-      Serial.println(http.getString());
+
       http.end();
       return;
     }
     http.end();
   } else {
-    Serial.println("❌ WiFi non connecté !");
+    Serial.println(" WiFi non connecté !");
   }
 }
 
@@ -158,7 +154,7 @@ void loop() {
   digitalWrite(trigPin1, LOW);
   long duration1 = pulseIn(echoPin1, HIGH);
   float distance1 = duration1 * 0.034 / 2;
-  Serial.print("📏 Distance 1 : ");
+  Serial.print("Distance 1 : ");
   Serial.print(distance1, 2);
   Serial.println(" cm");
 
@@ -170,7 +166,7 @@ void loop() {
   digitalWrite(trigPin2, LOW);
   long duration2 = pulseIn(echoPin2, HIGH);
   float distance2 = duration2 * 0.034 / 2;
-  Serial.print("📏 Distance 2 : ");
+  Serial.print("Distance 2 : ");
   Serial.print(distance2, 2);
   Serial.println(" cm");
 
@@ -179,11 +175,11 @@ void loop() {
   bool poidsPret = balance.is_ready();
   if (poidsPret) {
     poids = balance.get_units(10) * facteurCalibration;
-    Serial.print("⚖️ Poids calibré : ");
+    Serial.print("Poids calibré : ");
     Serial.print(poids, 2);
     Serial.println("g");
   } else {
-    Serial.println("❌ Capteur de poids non prêt !");
+    Serial.println("Capteur de poids non prêt !");
   }
 
   // Envoi des données à l'API sans RFID

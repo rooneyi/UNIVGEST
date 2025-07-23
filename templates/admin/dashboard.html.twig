@@ -168,37 +168,39 @@
           fetch('/api/equipements/realtime')
             .then(response => response.json())
             .then(data => {
-              let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+              let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">';
               data.forEach(eq => {
-                let alert = '';
-                let needMaintenance = false;
-                if ((eq.usage_hours ?? 0) > 100) {
-                  alert += '<div class="bg-red-100 text-red-700 p-2 rounded mb-2 font-bold">Alerte : Utilisation élevée (>100h)</div>';
-                  needMaintenance = true;
-                }
-                if ((eq.sensor_data.temperature ?? 0) > 60) {
-                  alert += '<div class="bg-orange-100 text-orange-700 p-2 rounded mb-2 font-bold">Alerte : Température élevée (>60°C)</div>';
-                  needMaintenance = true;
-                }
-                html += `<div class=\"border rounded p-4 bg-white shadow\">
-          ${alert}
-          <div class=\"font-bold text-lg text-gray-900\">${eq.nom}</div>
-          <div class=\"mb-2 text-sm text-gray-600\">Etat : <span class=\"font-semibold\">${eq.etat}</span></div>
-          <div class=\"mb-2 text-sm text-gray-600\">Dernière mise à jour : ${eq.last_update || '-'} </div>
-          <div class=\"mb-2 text-sm text-gray-600\">Capteurs :
-            <ul class=\"ml-2\">
-              <li>Température : ${eq.sensor_data.temperature ?? '-'}</li>
-              <li>Présence : ${eq.sensor_data.presence ?? '-'}</li>
-              <li>Poids : ${eq.sensor_data.weight ?? '-'}</li>
-              <li>Distance : ${eq.sensor_data.distance ?? '-'}</li>
-            </ul>
-          </div>
-          <div class=\"mb-2 text-sm text-gray-600\">Heures d'utilisation : <span class=\"font-semibold\">${eq.usage_hours ?? '0'}</span></div>
-          <div class=\"w-full h-2 bg-gray-200 rounded\">
-            <div class=\"h-2 rounded bg-green-500\" style=\"width: ${Math.min(eq.usage_hours/100,1)*100}%\"></div>
-          </div>
-          ${needMaintenance ? '<button class=\"mt-4 px-4 py-2 bg-orange-600 text-white rounded\">Planifier maintenance</button>' : ''}
-        </div>`;
+                if (eq.etat && eq.etat.toLowerCase() !== 'disponible') return;
+                let poids = eq.sensor_data && eq.sensor_data.weight !== undefined
+                  ? (parseFloat(eq.sensor_data.weight).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}))
+                  : '-';
+                html += `
+                  <div class="bg-white rounded-xl shadow p-4 min-h-[200px] mb-4 flex flex-col gap-2" data-equipement-id="${eq.id}">
+                    <span class="font-bold text-base text-green-700">${eq.nom}</span>
+                    <span class="text-xs text-gray-600">Code: ${eq.code}</span>
+                    <span class="text-xs text-gray-600">RFID: ${eq.rfid_tag || 'N/A'}</span>
+                    <span class="text-xs text-gray-600">Poids: ${poids} g</span>
+                    ` + (
+                      eq.compartiment == '1' ?
+                        `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance1 || 'N/A'} cm
+                          <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance1 !== undefined && eq.distance1 > 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${eq.distance1 !== undefined && eq.distance1 > 30 ? 'Indisponible' : 'Disponible'}
+                          </span>
+                        </span>` :
+                      eq.compartiment == '2' ?
+                        `<span class="text-xs text-gray-600">Capteur Ultrasonic: ${eq.distance2 || 'N/A'} cm
+                          <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${eq.distance2 !== undefined && eq.distance2 > 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${eq.distance2 !== undefined && eq.distance2 > 30 ? 'Indisponible' : 'Disponible'}
+                          </span>
+                        </span>` :
+                        `<span class="text-xs text-gray-600">Capteur Ultrasonic: N/A</span>`
+                    ) +
+                    `<span class="text-xs text-gray-600">Compartiment : ` +
+                      (eq.compartiment == '1' ? `Compartiment 1` :
+                        (eq.compartiment == '2' ? `Compartiment 2` : 'Non défini')) +
+                    `</span>
+                  </div>
+                `;
               });
               html += '</div>';
               document.getElementById('realtime-equipements-dashboard').innerHTML = html;

@@ -36,6 +36,7 @@ class AdminEquipementController extends AbstractController
             $equipement->setEtat($etat);
             $equipement->setCapteurs($request->request->get('capteurs'));
             $equipement->setCode($request->request->get('code'));
+            $equipement->setCompartiment($request->request->get('compartiment'));
             $em->persist($equipement);
             $em->flush();
             return $this->redirectToRoute('admin_equipement_index');
@@ -56,13 +57,10 @@ class AdminEquipementController extends AbstractController
             if ($etat === null) {
                 throw new \RuntimeException('La valeur de l\'état est null. Vérifiez le formulaire HTML et la soumission.');
             }
-            $validEtats = ['disponible', 'maintenance', 'reservé'];
-            if (!in_array($etat, $validEtats, true)) {
-                throw new \InvalidArgumentException('État invalide fourni.');
-            }
             $equipement->setEtat($etat);
-            $equipement->setCapteurs($request->request->get('capteurs'));
             $equipement->setCode($request->request->get('code'));
+            $equipement->setCapteurs($request->request->get('capteurs'));
+            $equipement->setCompartiment($request->request->get('compartiment'));
             $em->flush();
             return $this->redirectToRoute('admin_equipement_index');
         }

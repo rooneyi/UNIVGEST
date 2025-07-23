@@ -50,6 +50,17 @@
                        placeholder="Code de l'équipement (optionnel)" />
             </div>
 
+            <div>
+                <label for="compartiment" class="block text-sm font-medium text-gray-700">Compartiment</label>
+                <select name="compartiment" id="compartiment" required
+                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="1">Compartiment 1</option>
+                    <option value="2">Compartiment 2</option>
+                    <option value="3">Compartiment 3</option>
+                    <option value="">Non défini</option>
+                </select>
+            </div>
+
             <div class="flex items-center">
                 <input type="hidden" name="disponible" id="disponible" value="Disponible"
                        class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">

@@ -70,6 +70,9 @@ class Equipement
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'equipement')]
     private $reservations;
 
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private $compartiment;
+
     public function __construct()
     {
         $this->etat = self::ETAT_DISPONIBLE;
@@ -225,6 +228,17 @@ class Equipement
     public function getDistance2(): ?int { return $this->distance2; }
     public function setDistance2(?int $distance2): self {
         $this->distance2 = $distance2;
+        return $this;
+    }
+
+    public function getCompartiment(): ?string
+    {
+        return $this->compartiment;
+    }
+
+    public function setCompartiment(?string $compartiment): self
+    {
+        $this->compartiment = $compartiment;
         return $this;
     }
 

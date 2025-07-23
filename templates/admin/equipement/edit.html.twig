@@ -56,6 +56,20 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-10 flex flex-col items-center justify-center">
+                    <div class="w-full max-w-md">
+                        <label for="compartiment" class="block text-sm/6 font-medium text-gray-900">Compartiment</label>
+                        <div class="mt-2">
+                            <select id="compartiment" name="compartiment" required
+                                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6">
+                                <option value="1" {% if equipement.compartiment == '1' %}selected{% endif %}>Compartiment 1</option>
+                                <option value="2" {% if equipement.compartiment == '2' %}selected{% endif %}>Compartiment 2</option>
+                                <option value="3" {% if equipement.compartiment == '3' %}selected{% endif %}>Compartiment 3</option>
+                                <option value="" {% if not equipement.compartiment %}selected{% endif %}>Non défini</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="mt-10 flex flex-col items-center justify-center">
                 <div class="w-full max-w-md">

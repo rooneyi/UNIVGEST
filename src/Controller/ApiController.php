@@ -154,6 +154,26 @@ class ApiController extends AbstractController
         $equipements = $equipementRepo->findAll();
         $result = [];
         foreach ($equipements as $equipement) {
+            // Exclure les équipements déclassés
+            if (strtolower($equipement->getEtat()) === 'declasser' || strtolower($equipement->getEtat()) === 'déclassé') {
+                continue;
+            }
+            // Extraction des données capteurs pour chaque compartiment
+            $historique = $equipement->getDonneesCapteursHistorique();
+            $last = [];
+            if (!empty($historique)) {
+                $last = end($historique);
+            }
+            $sensorData = [
+                'compartiment' => $equipement->getCompartiment(),
+                'ultrason' => [
+                    'distance1' => $last['distance1'] ?? $equipement->getDistance1(),
+                    'distance2' => $last['distance2'] ?? $equipement->getDistance2(),
+                ],
+                'poids' => $last['weight'] ?? $equipement->getPoidsActuel(),
+                'presence' => $last['presence'] ?? null,
+                'buzzer' => $last['buzzer'] ?? null,
+            ];
             $result[] = [
                 'id' => $equipement->getId(),
                 'code' => $equipement->getCode(),
@@ -165,6 +185,9 @@ class ApiController extends AbstractController
                 'distance1' => $equipement->getDistance1(),
                 'distance2' => $equipement->getDistance2(),
                 'rfid_tag' => $equipement->getRfidTag(),
+                'usage_hours' => $equipement->getTempsUtilisationTotal(),
+                'sensor_data' => $sensorData,
+                'compartiment' => $equipement->getCompartiment(),
             ];
         }
         return new JsonResponse($result);
